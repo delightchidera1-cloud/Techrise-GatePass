@@ -268,6 +268,16 @@ export function ExeatProvider({ children }) {
       return false;
     }
 
+    const expiresAtStr = attendanceSession.expiresAt.endsWith('Z') || attendanceSession.expiresAt.includes('+') 
+      ? attendanceSession.expiresAt 
+      : attendanceSession.expiresAt + 'Z';
+    const expires = new Date(expiresAtStr);
+    
+    if (new Date() >= expires) {
+      showToast('Session time has elapsed.', 'error');
+      return false;
+    }
+
     const isClockedOut = requests.some(r => r.applicantId === currentUser?.studentId && r.status === 'ACTIVE_OUTSIDE');
     if (isClockedOut) {
       showToast('Cannot mark attendance while clocked out by security.', 'error');

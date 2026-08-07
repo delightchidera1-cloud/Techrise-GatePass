@@ -24,7 +24,26 @@ export default function StudentAttendance() {
     });
   })();
 
-  const isLive = attendanceSession?.status === 'OPEN';
+  const [isLive, setIsLive] = useState(false);
+
+  React.useEffect(() => {
+    if (!attendanceSession || attendanceSession.status !== 'OPEN') {
+      setIsLive(false);
+      return;
+    }
+
+    const checkLiveStatus = () => {
+      const expiresAtStr = attendanceSession.expiresAt.endsWith('Z') || attendanceSession.expiresAt.includes('+') 
+        ? attendanceSession.expiresAt 
+        : attendanceSession.expiresAt + 'Z';
+      const expires = new Date(expiresAtStr);
+      setIsLive(new Date() < expires);
+    };
+
+    checkLiveStatus();
+    const interval = setInterval(checkLiveStatus, 1000);
+    return () => clearInterval(interval);
+  }, [attendanceSession]);
 
   const handleChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
