@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { ShieldAlert, QrCode, Key, DoorOpen, DoorClosed, Building, MapPin, Phone, AlertTriangle, CheckCircle } from 'lucide-react';
+import { ShieldAlert, QrCode, Key, DoorOpen, DoorClosed, Building, MapPin, Phone, AlertTriangle, CheckCircle, Camera, CameraOff } from 'lucide-react';
+import ScannerComponent from './ScannerComponent';
 import { useExeat } from '../context/ExeatContext';
 
 export default function SecurityPortal() {
   const { requests, clockOutParticipant, clockInParticipant, showToast } = useExeat();
   const [searchInput, setSearchInput] = useState('');
   const [verifiedPass, setVerifiedPass] = useState(null);
+  const [isScanning, setIsScanning] = useState(false);
 
   const outsideParticipants = requests.filter(r => r.status === 'ACTIVE_OUTSIDE');
   const validScanPasses = requests.filter(r => r.status === 'APPROVED' || r.status === 'ACTIVE_OUTSIDE');
@@ -23,6 +25,35 @@ export default function SecurityPortal() {
       return;
     }
     setVerifiedPass(match);
+  };
+
+  const handleScanSuccess = (decodedText) => {
+    try {
+      const data = JSON.parse(decodedText);
+      if (data && data.passId) {
+        setSearchInput(data.passId);
+        const match = requests.find(r => r.passId && r.passId.toUpperCase() === data.passId.toUpperCase());
+        if (match) {
+          setVerifiedPass(match);
+          setIsScanning(false);
+          showToast('QR Code Scanned successfully!', 'success');
+        } else {
+          showToast(`Invalid pass ID in QR: ${data.passId}`, 'error');
+        }
+      } else {
+        showToast('Invalid QR code format', 'error');
+      }
+    } catch (e) {
+      const match = requests.find(r => r.passId && r.passId.toUpperCase() === decodedText.trim().toUpperCase());
+      if (match) {
+        setSearchInput(match.passId);
+        setVerifiedPass(match);
+        setIsScanning(false);
+        showToast('QR Code Scanned successfully!', 'success');
+      } else {
+        showToast('Unrecognized QR Code content', 'error');
+      }
+    }
   };
 
   const handleQuickScan = (passId) => {
@@ -56,11 +87,24 @@ export default function SecurityPortal() {
         </div>
 
         <div className="scanner-box">
-          <div className="scanner-target">
-            <QrCode size={64} style={{ opacity: 0.2 }} />
-            <div className="laser-beam"></div>
-            <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#9ca3af' }}>Ready to verify pass</p>
-          </div>
+          {isScanning ? (
+            <div style={{ position: 'relative', width: '100%', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
+              <ScannerComponent onScanSuccess={handleScanSuccess} />
+              <button 
+                className="btn btn-outline" 
+                style={{ position: 'absolute', bottom: '1rem', right: '1rem', zIndex: 10, backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', border: 'none' }}
+                onClick={() => setIsScanning(false)}
+              >
+                <CameraOff size={16} /> Stop Camera
+              </button>
+            </div>
+          ) : (
+            <div className="scanner-target" style={{ cursor: 'pointer' }} onClick={() => setIsScanning(true)}>
+              <Camera size={48} style={{ opacity: 0.5, marginBottom: '0.5rem', color: 'var(--primary)' }} />
+              <p style={{ margin: 0, fontWeight: 'bold' }}>Click to Start Camera Scanner</p>
+              <p style={{ marginTop: '0.2rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>Ready to verify pass</p>
+            </div>
+          )}
 
           <div className="input-group">
             <input
