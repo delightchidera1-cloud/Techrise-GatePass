@@ -11,13 +11,14 @@ export default function FacilitatorAttendance() {
     attendanceRecords,
     studentPerformances,
     openAttendanceSession,
-    closeAttendanceSession
+    closeAttendanceSession,
+    currentUser
   } = useExeat();
 
   const [timeLeft, setTimeLeft] = useState('00:00');
   const [selectedStudent, setSelectedStudent] = useState(null);
 
-  const participants = users.filter(u => u.role === 'participant');
+  const participants = users.filter(u => u.role === 'participant' && u.assignedTutorId === currentUser?.id);
   const enrolledCount = participants.length;
   const presentCount = (() => {
     if (!attendanceSession?.openedAt) return 0;

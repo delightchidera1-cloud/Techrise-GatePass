@@ -50,12 +50,12 @@ export default function StudentProfileModal() {
             </div>
             <div>
               <h2 style={{ margin: 0 }}>{selectedRequest.applicantName}</h2>
-              <p style={{ margin: '0.2rem 0 0 0', color: '#64748b' }}>{selectedRequest.applicantId} • {selectedRequest.applicantTrack}</p>
-              <p style={{ margin: '0.2rem 0 0 0', color: '#64748b' }}>Phone: {selectedRequest.applicantPhone || selectedRequest.emergencyContact || 'N/A'}</p>
+              <p style={{ margin: '0.2rem 0 0 0', color: 'var(--text-muted)' }}>{selectedRequest.applicantId} • {selectedRequest.applicantTrack}</p>
+              <p style={{ margin: '0.2rem 0 0 0', color: 'var(--text-muted)' }}>Phone: {selectedRequest.applicantPhone || selectedRequest.emergencyContact || 'N/A'}</p>
             </div>
           </div>
 
-          <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div className="modal-stats-grid">
             <div className="stat-card" style={{ padding: '1rem' }}>
               <div className="stat-icon icon-purple" style={{ width: '32px', height: '32px' }}><FileText size={16} /></div>
               <div className="stat-details">
@@ -88,15 +88,15 @@ export default function StudentProfileModal() {
 
           {defaultedPasses.length > 0 && (
             <div style={{ marginBottom: '1.5rem' }}>
-              <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
-                <AlertTriangle size={16} style={{ color: '#f59e0b' }}/> Default Records
+              <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+                <AlertTriangle size={16} style={{ color: 'var(--accent-amber)' }}/> Default Records
               </h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {defaultedPasses.map(dp => (
-                  <li key={dp.id} style={{ padding: '0.75rem', backgroundColor: '#fef3c7', borderRadius: '0.5rem', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                    <strong>Destination:</strong> {dp.destination} <br/>
-                    <strong>Expected Return:</strong> {formatDateTime(dp.expectedReturnTime)} <br/>
-                    <strong>Actual Return:</strong> {dp.actualReturnTime ? formatDateTime(dp.actualReturnTime) : 'Not Returned Yet'}
+                  <li key={dp.id} style={{ padding: '0.75rem', backgroundColor: 'var(--accent-amber-bg)', border: '1px solid var(--accent-amber)', borderRadius: 'var(--radius-sm)', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-main)' }}>
+                    <strong style={{ color: 'var(--text-main)' }}>Destination:</strong> {dp.destination} <br/>
+                    <strong style={{ color: 'var(--text-main)' }}>Expected Return:</strong> {formatDateTime(dp.expectedReturnTime)} <br/>
+                    <strong style={{ color: 'var(--text-main)' }}>Actual Return:</strong> {dp.actualReturnTime ? formatDateTime(dp.actualReturnTime) : 'Not Returned Yet'}
                   </li>
                 ))}
               </ul>
@@ -104,31 +104,31 @@ export default function StudentProfileModal() {
           )}
 
           <div>
-            <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
-              <Activity size={16} style={{ color: '#3b82f6' }}/> All Applications History
+            <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+              <Activity size={16} style={{ color: 'var(--accent-cyan)' }}/> All Applications History
             </h4>
-            <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '0.5rem' }}>
+            <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                <thead style={{ backgroundColor: '#f8fafc', position: 'sticky', top: 0 }}>
+                <thead style={{ backgroundColor: 'var(--bg-surface)', position: 'sticky', top: 0 }}>
                   <tr>
-                    <th style={{ padding: '0.5rem', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>Date</th>
-                    <th style={{ padding: '0.5rem', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>Destination</th>
-                    <th style={{ padding: '0.5rem', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>Status</th>
+                    <th style={{ padding: '0.5rem', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>Date</th>
+                    <th style={{ padding: '0.5rem', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>Destination</th>
+                    <th style={{ padding: '0.5rem', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {studentRequests.map(r => (
-                    <tr key={r.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                      <td style={{ padding: '0.5rem' }}>{formatDateTime(r.createdAt)}</td>
-                      <td style={{ padding: '0.5rem' }}>{r.destination}</td>
+                    <tr key={r.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                      <td style={{ padding: '0.5rem', color: 'var(--text-main)' }}>{formatDateTime(r.createdAt)}</td>
+                      <td style={{ padding: '0.5rem', color: 'var(--text-main)' }}>{r.destination}</td>
                       <td style={{ padding: '0.5rem' }}>
                         <span style={{ 
                           padding: '0.2rem 0.4rem', 
                           borderRadius: '0.25rem', 
                           fontSize: '0.75rem',
                           fontWeight: 'bold',
-                          backgroundColor: r.status === 'APPROVED' || r.status === 'COMPLETED' ? '#dcfce7' : r.status === 'REJECTED' ? '#fee2e2' : '#fef3c7',
-                          color: r.status === 'APPROVED' || r.status === 'COMPLETED' ? '#166534' : r.status === 'REJECTED' ? '#991b1b' : '#92400e'
+                          backgroundColor: r.status === 'APPROVED' || r.status === 'COMPLETED' ? 'var(--accent-green-bg)' : r.status === 'REJECTED' ? 'var(--accent-red-bg)' : 'var(--accent-amber-bg)',
+                          color: r.status === 'APPROVED' || r.status === 'COMPLETED' ? 'var(--accent-green)' : r.status === 'REJECTED' ? 'var(--accent-red)' : 'var(--accent-amber)'
                         }}>
                           {r.status}
                         </span>

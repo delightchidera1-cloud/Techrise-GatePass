@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Shield, UserCheck, ShieldCheck, UserCog, LogIn, Key, ArrowRight, User } from 'lucide-react';
+import { Shield, UserCheck, ShieldCheck, UserCog, LogIn, Key, ArrowRight, User, Eye, EyeOff } from 'lucide-react';
 import { useExeat } from '../context/ExeatContext';
 
 export default function LoginPortal({ onSwitchMode }) {
   const { users, loginUser, showToast } = useExeat();
   const [tab, setTab] = useState('student'); // 'student' | 'admin' | 'security'
+  const [showPassword, setShowPassword] = useState(false);
   
   // Student Form State
   const [studentIdInput, setStudentIdInput] = useState('');
@@ -62,6 +63,8 @@ export default function LoginPortal({ onSwitchMode }) {
     if (match) {
       if (match.password && match.password !== adminPassword) {
         showToast('Incorrect password', 'error');
+      } else if (match.role === 'superadmin' && adminLoginType === 'Attendance') {
+        showToast('Super Admins cannot access the Attendance portal', 'error');
       } else {
         loginUser(match, adminLoginType);
       }
@@ -114,7 +117,7 @@ export default function LoginPortal({ onSwitchMode }) {
             <Shield size={32} />
           </div> */}
           <h2>ABIA <span>TECHRISE</span></h2>
-          <p>Digital Exit Permission/Gate Control System & Atendance System</p>
+          <p>Digital Exeat Permission/Gate Control & Atendance System</p>
         </div>
 
         {/* Role Tabs */}
@@ -155,13 +158,35 @@ export default function LoginPortal({ onSwitchMode }) {
             </div>
             <div className="form-group">
               <label><Key size={14} style={{ display: 'inline', marginRight: 4 }} /> Password</label>
-              <input
-                type="password"
-                className="form-control"
-                placeholder="••••••••"
-                value={studentPassword}
-                onChange={(e) => setStudentPassword(e.target.value)}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  className="form-control"
+                  placeholder="••••••••"
+                  value={studentPassword}
+                  onChange={(e) => setStudentPassword(e.target.value)}
+                  style={{ paddingRight: '40px', width: '100%', boxSizing: 'border-box' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#64748b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: 0
+                  }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
             <div className="form-group">
               <label>Login Type</label>
@@ -195,13 +220,35 @@ export default function LoginPortal({ onSwitchMode }) {
             </div>
             <div className="form-group">
               <label><Key size={14} style={{ display: 'inline', marginRight: 4 }} /> Admin Security Password</label>
-              <input
-                type="password"
-                className="form-control"
-                placeholder="••••••••"
-                value={adminPassword}
-                onChange={(e) => setAdminPassword(e.target.value)}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  className="form-control"
+                  placeholder="••••••••"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  style={{ paddingRight: '40px', width: '100%', boxSizing: 'border-box' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#64748b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: 0
+                  }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
             <div className="form-group">
               <label>Login Type</label>
@@ -235,13 +282,35 @@ export default function LoginPortal({ onSwitchMode }) {
             </div>
             <div className="form-group">
               <label><Key size={14} style={{ display: 'inline', marginRight: 4 }} /> Security Gate Password</label>
-              <input
-                type="password"
-                className="form-control"
-                placeholder="••••••••"
-                value={secPassword}
-                onChange={(e) => setSecPassword(e.target.value)}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  className="form-control"
+                  placeholder="••••••••"
+                  value={secPassword}
+                  onChange={(e) => setSecPassword(e.target.value)}
+                  style={{ paddingRight: '40px', width: '100%', boxSizing: 'border-box' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#64748b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: 0
+                  }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
             <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}>
               <LogIn size={16} /> Access Gate Security Terminal <ArrowRight size={16} />

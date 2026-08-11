@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, UserCog, Clock, Zap, LogOut, User } from 'lucide-react';
+import { Shield, UserCog, Clock, Zap, LogOut, User, ClipboardCheck } from 'lucide-react';
 import { useExeat } from '../context/ExeatContext';
 
 export default function Header() {
-  const { currentUser, logoutUser, activeRole, setActiveRole } = useExeat();
+  const { currentUser, logoutUser, activeRole, setActiveRole, currentLoginType } = useExeat();
   const [timeStr, setTimeStr] = useState('');
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function Header() {
       <div className="top-bar">
         <div className="container top-bar-content">
           <span className="badge badge-pulse">
-            <Zap size={12} style={{ marginRight: 4 }} /> Tech Skill Empowerment Camp v2.4
+            Abia Tech Skill Empowerment Camp
           </span>
           <span className="top-time">
             <Clock size={14} /> {timeStr}
@@ -33,11 +33,25 @@ export default function Header() {
         <div className="container header-container">
           <div className="brand">
             <div className="brand-icon">
-              <Shield size={24} />
+              {currentLoginType === 'Attendance' ? <ClipboardCheck size={24} /> : <Shield size={24} />}
             </div>
             <div className="brand-text">
-              <h1>GatePass <span>Hub</span></h1>
-              <p>Digital Exeat & Permission Portal</p>
+              {currentLoginType === 'Attendance' ? (
+                <>
+                  <h1>Class <span>Attendance</span></h1>
+                  <p>Student Tracking & Presence</p>
+                </>
+              ) : activeRole === 'security' ? (
+                <>
+                  <h1><span>TECHRISE</span>-GatePass</h1>
+                  <p>Digital Exeat & Permission Portal</p>
+                </>
+              ) : (
+                <>
+                  <h1>GatePass <span>Hub</span></h1>
+                  <p>Digital Exeat & Permission Portal</p>
+                </>
+              )}
             </div>
           </div>
 

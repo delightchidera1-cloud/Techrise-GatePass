@@ -3,8 +3,16 @@ import { Users, BookOpen, Save, Settings } from 'lucide-react';
 import { useExeat } from '../context/ExeatContext';
 
 export default function ClassAssignmentPanel() {
-  const { users, assignIndividualStudent, assignClassFacilitator, activeRole } = useExeat();
+  const { users, assignIndividualStudent, assignClassFacilitator, activeRole, toggleFacilitatorGlobalApproval } = useExeat();
   const [selectedTrack, setSelectedTrack] = useState('');
+  
+  const [savingGlobalApprovalId, setSavingGlobalApprovalId] = useState(null);
+  
+  const handleToggleGlobalApproval = async (tutor) => {
+    setSavingGlobalApprovalId(tutor.id);
+    await toggleFacilitatorGlobalApproval(tutor.id, tutor.canApproveAll);
+    setSavingGlobalApprovalId(null);
+  };
   
   // Local state for dropdowns by student id
   const [studentAssignments, setStudentAssignments] = useState({});
@@ -121,8 +129,8 @@ export default function ClassAssignmentPanel() {
   };
 
   return (
-    <div className="card" style={{ marginBottom: '2rem' }}>
-      <div className="panel-header">
+    <div className="card" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+      <div className="panel-header" style={{ padding: '1.5rem 1.5rem 0 1.5rem' }}>
         <div>
           <h3><BookOpen size={20} /> Student Class Assignment</h3>
           <p className="panel-subtitle">Assign registered students to classes and select their facilitators.</p>
@@ -265,6 +273,36 @@ export default function ClassAssignmentPanel() {
           )}
         </div>
       )}
+
+      {/* Global Facilitator Approvals */}
+      <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
+        <h4 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)' }}>
+          <Settings size={18} /> Facilitator Global Approval Rights
+        </h4>
+        <p className="text-muted" style={{ marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+          By default, facilitators can only approve gate passes for students in their assigned class. 
+          Enable global approval below to allow a facilitator to approve passes for any student in the camp.
+        </p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
+          {tutors.map(tutor => (
+            <div key={tutor.id} style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <strong>{tutor.name}</strong><br />
+                <small className="text-muted">{tutor.studentId || 'Admin'}</small>
+              </div>
+              <button 
+                className={`btn btn-sm ${tutor.canApproveAll ? 'btn-success' : 'btn-outline'}`}
+                onClick={() => handleToggleGlobalApproval(tutor)}
+                disabled={savingGlobalApprovalId === tutor.id}
+                style={{ minWidth: '130px' }}
+              >
+                {savingGlobalApprovalId === tutor.id ? 'Saving...' : (tutor.canApproveAll ? 'Global Enabled' : 'Enable Global')}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

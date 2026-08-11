@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, UserCheck, ShieldCheck, UserCog, UserPlus, ArrowLeft, Key, User, Mail, Hash, Phone } from 'lucide-react';
+import { Shield, UserCheck, ShieldCheck, UserCog, UserPlus, ArrowLeft, Key, User, Mail, Hash, Phone, Eye, EyeOff } from 'lucide-react';
 import { useExeat } from '../context/ExeatContext';
 
 export default function SignUpPortal({ onSwitchMode }) {
@@ -12,6 +12,7 @@ export default function SignUpPortal({ onSwitchMode }) {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Role-Specific State
   const [studentId, setStudentId] = useState('');
@@ -176,26 +177,70 @@ export default function SignUpPortal({ onSwitchMode }) {
 
           <div className="form-group">
             <label><Key size={14} style={{ display: 'inline', marginRight: 4 }} /> Password</label>
-            <input
-              type="password"
-              className="form-control"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? "text" : "password"}
+                className="form-control"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                style={{ paddingRight: '40px', width: '100%', boxSizing: 'border-box' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#64748b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: 0
+                }}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
 
           <div className="form-group">
             <label><Key size={14} style={{ display: 'inline', marginRight: 4 }} /> Confirm Password</label>
-            <input
-              type="password"
-              className="form-control"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? "text" : "password"}
+                className="form-control"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                style={{ paddingRight: '40px', width: '100%', boxSizing: 'border-box' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#64748b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: 0
+                }}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
 
           <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}>

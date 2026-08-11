@@ -752,3 +752,53 @@
   font-weight: 600;
   color: #334155;
 }
+
+/* =========================================
+   Mobile Responsiveness (max-width: 768px)
+   ========================================= */
+@media (max-width: 768px) {
+  .attendance-layout {
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - 60px);
+  }
+  
+  .attendance-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 16px;
+  }
+  
+  .main-top-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 16px;
+  }
+  
+  .main-bottom-section {
+    padding: 16px;
+  }
+  
+  .roster-table-container {
+    overflow-x: auto;
+  }
+  
+  .name-cell {
+    min-width: 150px;
+  }
+
+  .attendance-drawer {
+    width: 100%;
+    right: -100%;
+  }
+
+  .drawer-header, .drawer-content {
+    padding: 16px;
+  }
+
+  .metrics-grid, .performance-grid {
+    grid-template-columns: 1fr;
+  }
+}

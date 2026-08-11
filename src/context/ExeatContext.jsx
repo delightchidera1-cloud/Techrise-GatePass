@@ -66,6 +66,10 @@ export function ExeatProvider({ children }) {
     };
   }, []);
 
+  useEffect(() => {
+    fetchAttendanceData();
+  }, [currentUser?.id]);
+
   async function fetchUsers() {
     const { data, error } = await supabase.from('users').select('*');
     if (error) console.error('fetchUsers error:', error);
@@ -83,9 +87,23 @@ export function ExeatProvider({ children }) {
   }
 
   async function fetchAttendanceData() {
-    const { data: sessionData } = await supabase.from('attendance_sessions').select('*').order('openedAt', { ascending: false }).limit(1);
+    const { data: sessionData } = await supabase.from('attendance_sessions').select('*').order('openedAt', { ascending: false }).limit(50);
+    
+    let relevantSession = null;
     if (sessionData && sessionData.length > 0) {
-      setAttendanceSession(sessionData[0]);
+      if (currentUser?.role === 'participant') {
+        if (currentUser?.assignedTutorId) {
+          relevantSession = sessionData.find(s => s.id.includes(currentUser.assignedTutorId));
+        }
+      } else if (currentUser?.role === 'superadmin') {
+        relevantSession = sessionData[0];
+      } else if (currentUser?.id) {
+        relevantSession = sessionData.find(s => s.id.includes(currentUser.id));
+      }
+    }
+
+    if (relevantSession) {
+      setAttendanceSession(relevantSession);
       
       const { data: pinsData } = await supabase.from('attendance_pins').select('*');
       if (pinsData) setSessionPINs(pinsData);
@@ -195,7 +213,8 @@ export function ExeatProvider({ children }) {
   };
 
   const openAttendanceSession = async () => {
-    const sessionId = 'ATT-' + Date.now();
+    if (!currentUser) return;
+    const sessionId = `ATT-${currentUser.id}-${Date.now()}`;
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
     
     const { error: sessionError } = await supabase.from('attendance_sessions').insert([{
@@ -205,10 +224,14 @@ export function ExeatProvider({ children }) {
     }]);
 
     if (!sessionError) {
-      // Delete old pins to prevent finding old pins
-      await supabase.from('attendance_pins').delete().neq('studentId', 'dummy');
+      const participants = users.filter(u => u.role === 'participant' && u.assignedTutorId === currentUser.id && u.studentId);
       
-      const participants = users.filter(u => u.role === 'participant' && u.studentId);
+      // Delete old pins to prevent finding old pins
+      const participantIds = participants.map(p => p.studentId);
+      if (participantIds.length > 0) {
+        await supabase.from('attendance_pins').delete().in('studentId', participantIds);
+      }
+      
       const newPINs = participants.map(p => ({
         studentId: p.studentId,
         pin: Math.floor(100 + Math.random() * 900).toString(),
@@ -229,7 +252,7 @@ export function ExeatProvider({ children }) {
     await supabase.from('attendance_sessions').update({ status: 'CLOSED' }).eq('id', attendanceSession.id);
     
     // Mark absent
-    const participants = users.filter(u => u.role === 'participant');
+    const participants = users.filter(u => u.role === 'participant' && u.assignedTutorId === currentUser?.id);
     const recordsToInsert = [];
     
     // Only check records from this session
@@ -364,6 +387,21 @@ export function ExeatProvider({ children }) {
     }
   };
 
+  const toggleFacilitatorGlobalApproval = async (tutorId, currentStatus) => {
+    const { error } = await supabase
+      .from('users')
+      .update({ canApproveAll: !currentStatus })
+      .eq('id', tutorId);
+      
+    if (error) {
+      showToast('Failed to update global approval rights', 'error');
+      return false;
+    } else {
+      showToast('Global approval rights updated', 'success');
+      return true;
+    }
+  };
+
   const exportToCSV = () => {
     const headers = ['Pass ID', 'Applicant Name', 'Participant ID', 'Track', 'Reason', 'Destination', 'Exit Time', 'Expected Return', 'Status'];
     const rows = requests.map(r => [
@@ -432,7 +470,8 @@ export function ExeatProvider({ children }) {
       verifyPIN,
       assignClassBatch,
       assignIndividualStudent,
-      assignClassFacilitator
+      assignClassFacilitator,
+      toggleFacilitatorGlobalApproval
     }}>
       {children}
     </ExeatContext.Provider>
