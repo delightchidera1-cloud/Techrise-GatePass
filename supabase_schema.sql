@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
   "assignedClass" VARCHAR,
   "assignedTutorId" UUID,
   "canApproveAll" BOOLEAN DEFAULT FALSE,
-  "isActivated" BOOLEAN DEFAULT FALSE
+  "isActivated" BOOLEAN DEFAULT FALSE,
+  "deletedAt" TIMESTAMP WITH TIME ZONE DEFAULT NULL
 );
 
 -- Note: If you already have the users table created, run the following to add the missing columns:
@@ -27,6 +28,22 @@ CREATE TABLE IF NOT EXISTS users (
 INSERT INTO users ("studentId", name, email, role, password)
 VALUES ('SUPERADMIN-001', 'System Superadmin', 'chideraawuzie92@gmail.com', 'superadmin', '@Delight112')
 ON CONFLICT (email) DO NOTHING;
+
+-- ==========================================
+-- AUTO-DELETE MECHANISM (pg_cron)
+-- ==========================================
+-- This sets up a daily scheduled job inside Supabase to permanently delete
+-- any users who have been soft-deleted for more than 15 days.
+
+-- Enable the pg_cron extension (Must be run by a database admin)
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+
+-- Create the cron job to run at midnight every day
+SELECT cron.schedule(
+  'purge-deleted-users',
+  '0 0 * * *',
+  $$ DELETE FROM users WHERE "deletedAt" IS NOT NULL AND "deletedAt" < NOW() - INTERVAL '15 days' $$
+);
 
 CREATE TABLE IF NOT EXISTS gatepass_requests (
   id VARCHAR PRIMARY KEY,

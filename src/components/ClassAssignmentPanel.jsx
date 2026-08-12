@@ -1,13 +1,22 @@
 import React, { useState, useMemo } from 'react';
-import { Users, BookOpen, Save, Settings, ShieldAlert } from 'lucide-react';
+import { Users, BookOpen, Save, Settings, ShieldAlert, Trash2 } from 'lucide-react';
 import { useExeat } from '../context/ExeatContext';
 
 export default function ClassAssignmentPanel({ activeTab = 'all' }) {
-  const { users, assignIndividualStudent, assignClassFacilitator, activeRole, toggleFacilitatorGlobalApproval, toggleSecurityActivation, transferStudentTrack } = useExeat();
+  const { users, assignIndividualStudent, assignClassFacilitator, activeRole, toggleFacilitatorGlobalApproval, toggleSecurityActivation, transferStudentTrack, softDeleteUser } = useExeat();
   const [selectedTrack, setSelectedTrack] = useState('');
   
   const [savingGlobalApprovalId, setSavingGlobalApprovalId] = useState(null);
   const [savingSecurityId, setSavingSecurityId] = useState(null);
+  const [processingDeleteId, setProcessingDeleteId] = useState(null);
+
+  const handleDeleteUser = async (user) => {
+    if (window.confirm(`Are you sure you want to delete ${user.name}? They will be moved to Recently Deleted.`)) {
+      setProcessingDeleteId(user.id);
+      await softDeleteUser(user.id);
+      setProcessingDeleteId(null);
+    }
+  };
   
   const handleToggleGlobalApproval = async (tutor) => {
     setSavingGlobalApprovalId(tutor.id);
@@ -291,11 +300,20 @@ export default function ClassAssignmentPanel({ activeTab = 'all' }) {
                         <td style={{ padding: '1rem', textAlign: 'right' }}>
                           <button 
                             className={`btn btn-sm ${isTrackDirty ? 'btn-danger' : 'btn-primary'}`}
-                            disabled={savingId === s.id || (!assignment.classLetter && !isTrackDirty) || !isDirty}
+                            disabled={savingId === s.id || processingDeleteId === s.id || (!assignment.classLetter && !isTrackDirty) || !isDirty}
                             onClick={() => handleSaveStudent(s)}
                             style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                           >
-                            {savingId === s.id ? 'Saving...' : (isTrackDirty ? 'Transfer Track' : <><Save size={14} /> Save</>)}
+                            {savingId === s.id ? 'Saving...' : (isTrackDirty ? 'Transfer' : <><Save size={14} /> Save</>)}
+                          </button>
+                          <button 
+                            className="btn btn-sm btn-outline"
+                            disabled={processingDeleteId === s.id}
+                            onClick={() => handleDeleteUser(s)}
+                            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0.4rem', border: '1px solid #ef4444', color: '#ef4444', marginLeft: '4px' }}
+                            title="Delete Student"
+                          >
+                            <Trash2 size={14} />
                           </button>
                         </td>
                       </tr>
@@ -330,14 +348,25 @@ export default function ClassAssignmentPanel({ activeTab = 'all' }) {
                 <strong>{tutor.name}</strong><br />
                 <small className="text-muted">{tutor.studentId || 'Admin'}</small>
               </div>
-              <button 
-                className={`btn btn-sm ${tutor.canApproveAll ? 'btn-success' : 'btn-outline'}`}
-                onClick={() => handleToggleGlobalApproval(tutor)}
-                disabled={savingGlobalApprovalId === tutor.id}
-                style={{ minWidth: '130px' }}
-              >
-                {savingGlobalApprovalId === tutor.id ? 'Saving...' : (tutor.canApproveAll ? 'Global Enabled' : 'Enable Global')}
-              </button>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button 
+                  className={`btn btn-sm ${tutor.canApproveAll ? 'btn-success' : 'btn-outline'}`}
+                  onClick={() => handleToggleGlobalApproval(tutor)}
+                  disabled={savingGlobalApprovalId === tutor.id || processingDeleteId === tutor.id}
+                  style={{ minWidth: '130px' }}
+                >
+                  {savingGlobalApprovalId === tutor.id ? 'Saving...' : (tutor.canApproveAll ? 'Global Enabled' : 'Enable Global')}
+                </button>
+                <button 
+                  className="btn btn-sm btn-outline"
+                  disabled={processingDeleteId === tutor.id}
+                  onClick={() => handleDeleteUser(tutor)}
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0.4rem', border: '1px solid #ef4444', color: '#ef4444' }}
+                  title="Delete Facilitator"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -361,14 +390,25 @@ export default function ClassAssignmentPanel({ activeTab = 'all' }) {
                 <strong>{sec.name}</strong><br />
                 <small className="text-muted">{sec.email || 'No email'}</small>
               </div>
-              <button 
-                className={`btn btn-sm ${sec.isActivated ? 'btn-success' : 'btn-outline'}`}
-                onClick={() => handleToggleSecurityActivation(sec)}
-                disabled={savingSecurityId === sec.id}
-                style={{ minWidth: '130px' }}
-              >
-                {savingSecurityId === sec.id ? 'Saving...' : (sec.isActivated ? 'Access Granted' : 'Grant Access')}
-              </button>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button 
+                  className={`btn btn-sm ${sec.isActivated ? 'btn-success' : 'btn-outline'}`}
+                  onClick={() => handleToggleSecurityActivation(sec)}
+                  disabled={savingSecurityId === sec.id || processingDeleteId === sec.id}
+                  style={{ minWidth: '130px' }}
+                >
+                  {savingSecurityId === sec.id ? 'Saving...' : (sec.isActivated ? 'Access Granted' : 'Grant Access')}
+                </button>
+                <button 
+                  className="btn btn-sm btn-outline"
+                  disabled={processingDeleteId === sec.id}
+                  onClick={() => handleDeleteUser(sec)}
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0.4rem', border: '1px solid #ef4444', color: '#ef4444' }}
+                  title="Delete Security Officer"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
           ))}
           {securityOfficers.length === 0 && (

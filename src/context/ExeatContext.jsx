@@ -6,6 +6,7 @@ const ExeatContext = createContext();
 export function ExeatProvider({ children }) {
   const [requests, setRequests] = useState([]);
   const [users, setUsers] = useState([]);
+  const [deletedUsers, setDeletedUsers] = useState([]);
   
   // Keep current session in localStorage to persist login across reloads
   const [currentUser, setCurrentUser] = useState(() => {
@@ -73,7 +74,10 @@ export function ExeatProvider({ children }) {
   async function fetchUsers() {
     const { data, error } = await supabase.from('users').select('*');
     if (error) console.error('fetchUsers error:', error);
-    if (data) setUsers(data);
+    if (data) {
+      setUsers(data.filter(u => !u.deletedAt));
+      setDeletedUsers(data.filter(u => u.deletedAt));
+    }
   }
 
   async function fetchStudentPerformances() {
@@ -444,6 +448,51 @@ export function ExeatProvider({ children }) {
     }
   };
 
+  const softDeleteUser = async (userId) => {
+    const { error } = await supabase
+      .from('users')
+      .update({ deletedAt: new Date().toISOString() })
+      .eq('id', userId);
+      
+    if (error) {
+      showToast(`Failed to delete account: ${error.message}`, 'error');
+      return false;
+    } else {
+      showToast('Account moved to Recently Deleted.', 'success');
+      return true;
+    }
+  };
+
+  const restoreUser = async (userId) => {
+    const { error } = await supabase
+      .from('users')
+      .update({ deletedAt: null })
+      .eq('id', userId);
+      
+    if (error) {
+      showToast(`Failed to restore account: ${error.message}`, 'error');
+      return false;
+    } else {
+      showToast('Account successfully restored!', 'success');
+      return true;
+    }
+  };
+
+  const permanentlyDeleteUser = async (userId) => {
+    const { error } = await supabase
+      .from('users')
+      .delete()
+      .eq('id', userId);
+      
+    if (error) {
+      showToast(`Failed to permanently delete account: ${error.message}`, 'error');
+      return false;
+    } else {
+      showToast('Account permanently deleted.', 'success');
+      return true;
+    }
+  };
+
   const exportToCSV = () => {
     const headers = ['Pass ID', 'Applicant Name', 'Participant ID', 'Track', 'Reason', 'Destination', 'Exit Time', 'Expected Return', 'Status'];
     const rows = requests.map(r => [
@@ -485,6 +534,7 @@ export function ExeatProvider({ children }) {
       requests,
       currentUser,
       users,
+      deletedUsers,
       loginUser,
       logoutUser,
       registerUser,
@@ -515,7 +565,10 @@ export function ExeatProvider({ children }) {
       transferStudentTrack,
       assignClassFacilitator,
       toggleFacilitatorGlobalApproval,
-      toggleSecurityActivation
+      toggleSecurityActivation,
+      softDeleteUser,
+      restoreUser,
+      permanentlyDeleteUser
     }}>
       {children}
     </ExeatContext.Provider>
