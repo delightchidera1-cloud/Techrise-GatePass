@@ -3,7 +3,7 @@ import { Shield, UserCheck, ShieldCheck, UserCog, UserPlus, ArrowLeft, Key, User
 import { useExeat } from '../context/ExeatContext';
 
 export default function SignUpPortal({ onSwitchMode }) {
-  const { registerUser, showToast } = useExeat();
+  const { users, registerUser, showToast } = useExeat();
   const [tab, setTab] = useState('student'); // 'student' | 'admin' | 'security'
 
   // Common State
@@ -42,6 +42,17 @@ export default function SignUpPortal({ onSwitchMode }) {
         showToast('Student ID and Track are required', 'error');
         return;
       }
+      const studentIdExists = users.some(u => u.studentId && u.studentId.toUpperCase() === studentId.toUpperCase());
+      if (studentIdExists) {
+        showToast('This Student ID is already registered to another account.', 'error');
+        return;
+      }
+    }
+
+    const emailExists = users.some(u => u.email && u.email.toLowerCase() === email.toLowerCase());
+    if (emailExists) {
+      showToast('This email is already in use. Please use a different email or login.', 'error');
+      return;
     }
 
     const newUser = {
