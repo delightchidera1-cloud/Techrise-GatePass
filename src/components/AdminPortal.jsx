@@ -24,6 +24,8 @@ export default function AdminPortal() {
     r.destination.toLowerCase().includes(historySearch.toLowerCase()))
   );
 
+  const displayedHistoryList = historySearch.trim() === '' ? historyList.slice(0, 10) : historyList;
+
   const handleActionClick = (req, actionType) => {
     setSelectedRequest({ ...req, actionType });
     setActiveModal('adminAction');
@@ -151,7 +153,7 @@ export default function AdminPortal() {
               </tr>
             </thead>
             <tbody>
-              {historyList.map(req => (
+              {displayedHistoryList.map(req => (
                 <tr key={req.id}>
                   <td>{req.passId ? <span className="code-pill">{req.passId}</span> : <span className="text-muted">N/A</span>}</td>
                   <td>
