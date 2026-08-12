@@ -394,7 +394,8 @@ export function ExeatProvider({ children }) {
       .eq('id', tutorId);
       
     if (error) {
-      showToast('Failed to update global approval rights', 'error');
+      showToast(`Failed to update global approval rights: ${error.message || 'Unknown error'}`, 'error');
+      console.error("Global Approval Update Error:", error);
       return false;
     } else {
       showToast('Global approval rights updated', 'success');
@@ -409,7 +410,8 @@ export function ExeatProvider({ children }) {
       .eq('id', userId);
       
     if (error) {
-      showToast('Failed to update security officer access', 'error');
+      showToast(`Failed to update security officer access: ${error.message || 'Unknown error'}`, 'error');
+      console.error("Security Activation Update Error:", error);
       return false;
     } else {
       showToast('Security officer access updated', 'success');
