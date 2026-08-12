@@ -150,18 +150,20 @@ export default function ClassAssignmentPanel({ activeTab = 'all' }) {
         </div>
       )}
 
-      <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)' }}>
-        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Select Course / Track</label>
-        <select 
-          className="form-control" 
-          value={selectedTrack} 
-          onChange={(e) => setSelectedTrack(e.target.value)}
-          style={{ maxWidth: '400px' }}
-        >
-          <option value="">-- Choose a Course --</option>
-          {tracks.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
-      </div>
+      {(activeTab === 'all' || activeTab === 'assignments') && (
+        <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Select Course / Track</label>
+          <select 
+            className="form-control" 
+            value={selectedTrack} 
+            onChange={(e) => setSelectedTrack(e.target.value)}
+            style={{ maxWidth: '400px' }}
+          >
+            <option value="">-- Choose a Course --</option>
+            {tracks.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </div>
+      )}
 
       {selectedTrack && (activeTab === 'all' || activeTab === 'assignments') && (
         <div style={{ padding: '1.5rem' }}>
