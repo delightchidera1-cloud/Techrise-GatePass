@@ -402,6 +402,21 @@ export function ExeatProvider({ children }) {
     }
   };
 
+  const toggleSecurityActivation = async (userId, currentStatus) => {
+    const { error } = await supabase
+      .from('users')
+      .update({ isActivated: !currentStatus })
+      .eq('id', userId);
+      
+    if (error) {
+      showToast('Failed to update security officer access', 'error');
+      return false;
+    } else {
+      showToast('Security officer access updated', 'success');
+      return true;
+    }
+  };
+
   const exportToCSV = () => {
     const headers = ['Pass ID', 'Applicant Name', 'Participant ID', 'Track', 'Reason', 'Destination', 'Exit Time', 'Expected Return', 'Status'];
     const rows = requests.map(r => [
@@ -471,7 +486,8 @@ export function ExeatProvider({ children }) {
       assignClassBatch,
       assignIndividualStudent,
       assignClassFacilitator,
-      toggleFacilitatorGlobalApproval
+      toggleFacilitatorGlobalApproval,
+      toggleSecurityActivation
     }}>
       {children}
     </ExeatContext.Provider>

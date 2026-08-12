@@ -1,17 +1,24 @@
 import React, { useState, useMemo } from 'react';
-import { Users, BookOpen, Save, Settings } from 'lucide-react';
+import { Users, BookOpen, Save, Settings, ShieldAlert } from 'lucide-react';
 import { useExeat } from '../context/ExeatContext';
 
 export default function ClassAssignmentPanel() {
-  const { users, assignIndividualStudent, assignClassFacilitator, activeRole, toggleFacilitatorGlobalApproval } = useExeat();
+  const { users, assignIndividualStudent, assignClassFacilitator, activeRole, toggleFacilitatorGlobalApproval, toggleSecurityActivation } = useExeat();
   const [selectedTrack, setSelectedTrack] = useState('');
   
   const [savingGlobalApprovalId, setSavingGlobalApprovalId] = useState(null);
+  const [savingSecurityId, setSavingSecurityId] = useState(null);
   
   const handleToggleGlobalApproval = async (tutor) => {
     setSavingGlobalApprovalId(tutor.id);
     await toggleFacilitatorGlobalApproval(tutor.id, tutor.canApproveAll);
     setSavingGlobalApprovalId(null);
+  };
+
+  const handleToggleSecurityActivation = async (sec) => {
+    setSavingSecurityId(sec.id);
+    await toggleSecurityActivation(sec.id, sec.isActivated);
+    setSavingSecurityId(null);
   };
   
   // Local state for dropdowns by student id
@@ -39,6 +46,10 @@ export default function ClassAssignmentPanel() {
 
   const tutors = useMemo(() => {
     return users.filter(u => u.role === 'admin');
+  }, [users]);
+
+  const securityOfficers = useMemo(() => {
+    return users.filter(u => u.role === 'security');
   }, [users]);
 
   // All students in selected track
@@ -301,6 +312,38 @@ export default function ClassAssignmentPanel() {
               </button>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Security Officers Configuration */}
+      <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
+        <h4 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)' }}>
+          <ShieldAlert size={18} /> Security Officer Accounts
+        </h4>
+        <p className="text-muted" style={{ marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+          Activate or revoke access for security officers. New security accounts must be activated before they can clock in/out students.
+        </p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
+          {securityOfficers.map(sec => (
+            <div key={sec.id} style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <strong>{sec.name}</strong><br />
+                <small className="text-muted">{sec.email || 'No email'}</small>
+              </div>
+              <button 
+                className={`btn btn-sm ${sec.isActivated ? 'btn-success' : 'btn-outline'}`}
+                onClick={() => handleToggleSecurityActivation(sec)}
+                disabled={savingSecurityId === sec.id}
+                style={{ minWidth: '130px' }}
+              >
+                {savingSecurityId === sec.id ? 'Saving...' : (sec.isActivated ? 'Access Granted' : 'Grant Access')}
+              </button>
+            </div>
+          ))}
+          {securityOfficers.length === 0 && (
+            <div className="text-muted" style={{ fontStyle: 'italic' }}>No security officers found in the system.</div>
+          )}
         </div>
       </div>
     </div>
