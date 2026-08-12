@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, BookOpen, Settings, Users, Key } from 'lucide-react';
+import { Shield, BookOpen, Settings, Users, Key, Menu } from 'lucide-react';
 import AdminPortal from './AdminPortal';
 import ClassAssignmentPanel from './ClassAssignmentPanel';
 import { useExeat } from '../context/ExeatContext';
@@ -7,6 +7,22 @@ import { useExeat } from '../context/ExeatContext';
 export default function SuperAdminDashboard() {
   const { activeRole } = useExeat();
   const [activeTab, setActiveTab] = useState('gatepass');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+    setIsMenuOpen(false);
+  };
+
+  const getTabLabel = () => {
+    switch(activeTab) {
+      case 'gatepass': return 'Gatepass Hub';
+      case 'assignments': return 'Student Assignments';
+      case 'facilitators': return 'Facilitator Rights';
+      case 'security': return 'Security Accounts';
+      default: return 'Dashboard';
+    }
+  };
 
   if (activeRole !== 'superadmin') {
     return (
@@ -18,29 +34,40 @@ export default function SuperAdminDashboard() {
   }
 
   return (
-    <div className="superadmin-dashboard">
-      <div className="sa-tabs-header">
+    <div className="superadmin-dashboard" style={{ position: 'relative' }}>
+      <div className="sa-mobile-header">
+        <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--primary)' }}>{getTabLabel()}</h3>
+        <button 
+          className="btn btn-outline sa-menu-btn" 
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          style={{ padding: '0.4rem 0.6rem' }}
+        >
+          <Menu size={20} />
+        </button>
+      </div>
+
+      <div className={`sa-tabs-header ${isMenuOpen ? 'open' : ''}`}>
         <button 
           className={`sa-tab-btn ${activeTab === 'gatepass' ? 'active' : ''}`}
-          onClick={() => setActiveTab('gatepass')}
+          onClick={() => handleTabClick('gatepass')}
         >
           <Shield size={18} /> Gatepass Hub
         </button>
         <button 
           className={`sa-tab-btn ${activeTab === 'assignments' ? 'active' : ''}`}
-          onClick={() => setActiveTab('assignments')}
+          onClick={() => handleTabClick('assignments')}
         >
           <BookOpen size={18} /> Student Assignments
         </button>
         <button 
           className={`sa-tab-btn ${activeTab === 'facilitators' ? 'active' : ''}`}
-          onClick={() => setActiveTab('facilitators')}
+          onClick={() => handleTabClick('facilitators')}
         >
           <Settings size={18} /> Facilitator Rights
         </button>
         <button 
           className={`sa-tab-btn ${activeTab === 'security' ? 'active' : ''}`}
-          onClick={() => setActiveTab('security')}
+          onClick={() => handleTabClick('security')}
         >
           <Key size={18} /> Security Accounts
         </button>
