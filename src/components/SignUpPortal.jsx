@@ -51,7 +51,8 @@ export default function SignUpPortal({ onSwitchMode }) {
       password,
       role: tab === 'student' ? 'participant' : tab,
       ...(tab === 'student' && { studentId, track }),
-      ...(tab !== 'student' && { title: title || (tab === 'admin' ? 'Administrator' : 'Security Officer') })
+      ...(tab !== 'student' && { title: title || (tab === 'admin' ? 'Administrator' : 'Security Officer') }),
+      isActivated: tab === 'security' ? false : true
     };
 
     registerUser(newUser);

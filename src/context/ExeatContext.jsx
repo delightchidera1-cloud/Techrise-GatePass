@@ -138,8 +138,13 @@ export function ExeatProvider({ children }) {
     const { data, error } = await supabase.from('users').insert([newUserObj]).select();
     if (error) {
       showToast('Registration failed: ' + error.message, 'error');
-    } else if (data) {
-      loginUser(data[0]);
+    } else if (data && data.length > 0) {
+      const createdUser = data[0];
+      if (createdUser.role === 'security' && !createdUser.isActivated) {
+        showToast('Security account created! Please wait for a Super Admin to grant you access.', 'info');
+      } else {
+        loginUser(createdUser);
+      }
     }
   };
 
