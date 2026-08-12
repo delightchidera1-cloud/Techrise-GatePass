@@ -91,7 +91,7 @@ export default function LoginPortal({ onSwitchMode }) {
     if (match) {
       if (match.password && match.password !== secPassword) {
         showToast('Incorrect password', 'error');
-      } else if (!match.isActivated) {
+      } else if (match.isActivated === false || match.isactivated === false || (!match.isActivated && !match.isactivated)) {
         showToast('Your account is pending activation by a Super Admin.', 'error');
       } else {
         loginUser(match);

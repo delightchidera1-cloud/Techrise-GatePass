@@ -140,7 +140,8 @@ export function ExeatProvider({ children }) {
       showToast('Registration failed: ' + error.message, 'error');
     } else if (data && data.length > 0) {
       const createdUser = data[0];
-      if (createdUser.role === 'security' && !createdUser.isActivated) {
+      const isAct = createdUser.isActivated !== undefined ? createdUser.isActivated : createdUser.isactivated;
+      if (createdUser.role === 'security' && (isAct === false || isAct === undefined)) {
         showToast('Security account created! Please wait for a Super Admin to grant you access.', 'info');
       } else {
         loginUser(createdUser);

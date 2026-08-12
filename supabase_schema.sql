@@ -13,12 +13,15 @@ CREATE TABLE IF NOT EXISTS users (
   "assignedClass" VARCHAR,
   "assignedTutorId" UUID,
   "canApproveAll" BOOLEAN DEFAULT FALSE,
-  "isActivated" BOOLEAN DEFAULT TRUE
+  "isActivated" BOOLEAN DEFAULT FALSE
 );
 
 -- Note: If you already have the users table created, run the following to add the missing columns:
 -- ALTER TABLE users ADD COLUMN "canApproveAll" BOOLEAN DEFAULT FALSE;
--- ALTER TABLE users ADD COLUMN "isActivated" BOOLEAN DEFAULT TRUE;
+-- ALTER TABLE users ADD COLUMN "isActivated" BOOLEAN DEFAULT FALSE;
+-- If you already added isActivated as TRUE, run:
+-- ALTER TABLE users ALTER COLUMN "isActivated" SET DEFAULT FALSE;
+-- UPDATE users SET "isActivated" = FALSE WHERE role = 'security';
 
 -- Seed Super Admin (You should run this manually to create the super admin)
 INSERT INTO users ("studentId", name, email, role, password)
