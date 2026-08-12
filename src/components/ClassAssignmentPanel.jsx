@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Users, BookOpen, Save, Settings, ShieldAlert } from 'lucide-react';
 import { useExeat } from '../context/ExeatContext';
 
-export default function ClassAssignmentPanel() {
+export default function ClassAssignmentPanel({ activeTab = 'all' }) {
   const { users, assignIndividualStudent, assignClassFacilitator, activeRole, toggleFacilitatorGlobalApproval, toggleSecurityActivation } = useExeat();
   const [selectedTrack, setSelectedTrack] = useState('');
   
@@ -140,13 +140,15 @@ export default function ClassAssignmentPanel() {
   };
 
   return (
-    <div className="card" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-      <div className="panel-header" style={{ padding: '1.5rem 1.5rem 0 1.5rem' }}>
-        <div>
-          <h3><BookOpen size={20} /> Student Class Assignment</h3>
-          <p className="panel-subtitle">Assign registered students to classes and select their facilitators.</p>
+    <div className="card panel-header-card" style={{ marginTop: '2rem' }}>
+      {(activeTab === 'all' || activeTab === 'assignments') && (
+        <div className="panel-header" style={{ marginBottom: '0' }}>
+          <div>
+            <h3><BookOpen size={20} /> Class & Facilitator Assignments</h3>
+            <p className="panel-subtitle">Assign students to classes and assign facilitators to those classes.</p>
+          </div>
         </div>
-      </div>
+      )}
 
       <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)' }}>
         <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Select Course / Track</label>
@@ -161,7 +163,7 @@ export default function ClassAssignmentPanel() {
         </select>
       </div>
 
-      {selectedTrack && (
+      {selectedTrack && (activeTab === 'all' || activeTab === 'assignments') && (
         <div style={{ padding: '1.5rem' }}>
           
           {/* Global Class Configuration */}
@@ -286,10 +288,11 @@ export default function ClassAssignmentPanel() {
       )}
 
       {/* Global Facilitator Approvals */}
-      <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
-        <h4 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)' }}>
-          <Settings size={18} /> Facilitator Global Approval Rights
-        </h4>
+      {(activeTab === 'all' || activeTab === 'facilitators') && (
+        <div style={{ padding: '1.5rem', borderTop: activeTab === 'all' ? '1px solid var(--border-color)' : 'none' }}>
+          <h4 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)' }}>
+            <Settings size={18} /> Facilitator Global Approval Rights
+          </h4>
         <p className="text-muted" style={{ marginBottom: '1.5rem', fontSize: '0.9rem' }}>
           By default, facilitators can only approve gate passes for students in their assigned class. 
           Enable global approval below to allow a facilitator to approve passes for any student in the camp.
@@ -314,12 +317,14 @@ export default function ClassAssignmentPanel() {
           ))}
         </div>
       </div>
+      )}
 
       {/* Security Officers Configuration */}
-      <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
-        <h4 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)' }}>
-          <ShieldAlert size={18} /> Security Officer Accounts
-        </h4>
+      {(activeTab === 'all' || activeTab === 'security') && (
+        <div style={{ padding: '1.5rem', borderTop: activeTab === 'all' ? '1px solid var(--border-color)' : 'none' }}>
+          <h4 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)' }}>
+            <ShieldAlert size={18} /> Security Officer Accounts
+          </h4>
         <p className="text-muted" style={{ marginBottom: '1.5rem', fontSize: '0.9rem' }}>
           Activate or revoke access for security officers. New security accounts must be activated before they can clock in/out students.
         </p>
@@ -346,6 +351,7 @@ export default function ClassAssignmentPanel() {
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }

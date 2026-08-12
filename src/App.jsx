@@ -14,6 +14,7 @@ import LoginPortal from './components/LoginPortal';
 import SignUpPortal from './components/SignUpPortal';
 import StudentProfileModal from './components/StudentProfileModal';
 import ClassAssignmentPanel from './components/ClassAssignmentPanel';
+import SuperAdminDashboard from './components/SuperAdminDashboard';
 import FacilitatorAttendance from './components/attendance/FacilitatorAttendance';
 import StudentAttendance from './components/attendance/StudentAttendance';
 
@@ -42,8 +43,8 @@ function MainContent() {
       <StatsGrid />
 
       {activeRole === 'participant' && <ParticipantPortal />}
-      {(activeRole === 'admin' || activeRole === 'superadmin') && <AdminPortal />}
-      {activeRole === 'superadmin' && <ClassAssignmentPanel />}
+      {activeRole === 'admin' && <AdminPortal />}
+      {activeRole === 'superadmin' && <SuperAdminDashboard />}
       {activeRole === 'security' && <SecurityPortal />}
 
       <NewRequestModal />
