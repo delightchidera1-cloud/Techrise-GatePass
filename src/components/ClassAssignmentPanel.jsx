@@ -3,7 +3,7 @@ import { Users, BookOpen, Save, Settings, ShieldAlert } from 'lucide-react';
 import { useExeat } from '../context/ExeatContext';
 
 export default function ClassAssignmentPanel({ activeTab = 'all' }) {
-  const { users, assignIndividualStudent, assignClassFacilitator, activeRole, toggleFacilitatorGlobalApproval, toggleSecurityActivation } = useExeat();
+  const { users, assignIndividualStudent, assignClassFacilitator, activeRole, toggleFacilitatorGlobalApproval, toggleSecurityActivation, transferStudentTrack } = useExeat();
   const [selectedTrack, setSelectedTrack] = useState('');
   
   const [savingGlobalApprovalId, setSavingGlobalApprovalId] = useState(null);
@@ -78,7 +78,7 @@ export default function ClassAssignmentPanel({ activeTab = 'all' }) {
             }
           }
         }
-        initialAssigments[s.id] = { classLetter: currentClassLetter };
+        initialAssigments[s.id] = { classLetter: currentClassLetter, track: s.track || '' };
       });
       
       setStudentAssignments(initialAssigments);
@@ -104,12 +104,19 @@ export default function ClassAssignmentPanel({ activeTab = 'all' }) {
 
   const handleSaveStudent = async (student) => {
     const assignment = studentAssignments[student.id];
-    if (!assignment || !assignment.classLetter) return;
+    if (!assignment) return;
     
     setSavingId(student.id);
-    const className = `${selectedTrack.toUpperCase()} CLASS ${assignment.classLetter}`;
-    const mappedTutorId = classFacilitators[assignment.classLetter] || null;
-    await assignIndividualStudent(student.id, className, mappedTutorId);
+    
+    // Transfer track if it changed
+    if (assignment.track !== student.track) {
+      await transferStudentTrack(student.id, assignment.track);
+    } else {
+      // Just normal class assignment
+      const className = `${selectedTrack.toUpperCase()} CLASS ${assignment.classLetter}`;
+      const mappedTutorId = classFacilitators[assignment.classLetter] || null;
+      await assignIndividualStudent(student.id, className, mappedTutorId);
+    }
     setSavingId(null);
   };
 
@@ -222,6 +229,7 @@ export default function ClassAssignmentPanel({ activeTab = 'all' }) {
                 <thead style={{ backgroundColor: 'var(--bg-surface)' }}>
                   <tr>
                     <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>Student Details</th>
+                    <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>Course / Track</th>
                     <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>Class Group</th>
                     <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>Current Facilitator</th>
                     <th style={{ padding: '1rem', textAlign: 'right', borderBottom: '1px solid var(--border-color)' }}>Action</th>
@@ -229,7 +237,7 @@ export default function ClassAssignmentPanel({ activeTab = 'all' }) {
                 </thead>
                 <tbody>
                   {allStudentsInTrack.map(s => {
-                    const assignment = studentAssignments[s.id] || { classLetter: '' };
+                    const assignment = studentAssignments[s.id] || { classLetter: '', track: s.track || '' };
                     
                     // The actual facilitator name for this student based on their DB record
                     let currentTutorName = 'N/A';
@@ -238,9 +246,12 @@ export default function ClassAssignmentPanel({ activeTab = 'all' }) {
                       if (t) currentTutorName = t.name;
                     }
 
-                    const isDirty = (
-                      (assignment.classLetter !== (s.assignedClass ? s.assignedClass.match(/CLASS\s+([A-C])$/i)?.[1] || '' : ''))
-                    );
+                    const isTrackDirty = assignment.track !== s.track;
+                    const isClassDirty = (assignment.classLetter !== (s.assignedClass ? s.assignedClass.match(/CLASS\s+([A-C])$/i)?.[1] || '' : ''));
+                    const isDirty = isTrackDirty || isClassDirty;
+                    
+                    // Prevent class assignment if track is changed (force them to save transfer first)
+                    const canAssignClass = !isTrackDirty;
 
                     return (
                       <tr key={s.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
@@ -252,9 +263,21 @@ export default function ClassAssignmentPanel({ activeTab = 'all' }) {
                         <td style={{ padding: '1rem' }}>
                           <select
                             className="form-control"
+                            value={assignment.track}
+                            onChange={(e) => handleAssignmentChange(s.id, 'track', e.target.value)}
+                            style={{ minWidth: '140px', backgroundColor: 'var(--bg-primary)' }}
+                          >
+                            <option value="">-- No Track --</option>
+                            {tracks.map(t => <option key={t} value={t}>{t}</option>)}
+                          </select>
+                        </td>
+                        <td style={{ padding: '1rem' }}>
+                          <select
+                            className="form-control"
                             value={assignment.classLetter}
                             onChange={(e) => handleAssignmentChange(s.id, 'classLetter', e.target.value)}
-                            style={{ minWidth: '120px', backgroundColor: 'var(--bg-primary)' }}
+                            disabled={!canAssignClass}
+                            style={{ minWidth: '120px', backgroundColor: canAssignClass ? 'var(--bg-primary)' : 'var(--bg-surface)' }}
                           >
                             <option value="">-- None --</option>
                             <option value="A">Class A</option>
@@ -267,12 +290,12 @@ export default function ClassAssignmentPanel({ activeTab = 'all' }) {
                         </td>
                         <td style={{ padding: '1rem', textAlign: 'right' }}>
                           <button 
-                            className="btn btn-primary btn-sm"
-                            disabled={savingId === s.id || !assignment.classLetter || !isDirty}
+                            className={`btn btn-sm ${isTrackDirty ? 'btn-danger' : 'btn-primary'}`}
+                            disabled={savingId === s.id || (!assignment.classLetter && !isTrackDirty) || !isDirty}
                             onClick={() => handleSaveStudent(s)}
                             style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                           >
-                            {savingId === s.id ? 'Saving...' : <><Save size={14} /> Save</>}
+                            {savingId === s.id ? 'Saving...' : (isTrackDirty ? 'Transfer Track' : <><Save size={14} /> Save</>)}
                           </button>
                         </td>
                       </tr>

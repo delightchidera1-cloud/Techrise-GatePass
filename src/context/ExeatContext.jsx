@@ -378,6 +378,25 @@ export function ExeatProvider({ children }) {
     }
   };
 
+  const transferStudentTrack = async (studentId, newTrack) => {
+    const { error } = await supabase
+      .from('users')
+      .update({ 
+        track: newTrack, 
+        assignedClass: null, 
+        assignedTutorId: null 
+      })
+      .eq('id', studentId);
+      
+    if (error) {
+      showToast('Failed to transfer student.', 'error');
+      return false;
+    } else {
+      showToast('Student successfully transferred to new course.', 'success');
+      return true;
+    }
+  };
+
   const assignClassFacilitator = async (className, tutorId) => {
     const { error } = await supabase
       .from('users')
@@ -493,6 +512,7 @@ export function ExeatProvider({ children }) {
       verifyPIN,
       assignClassBatch,
       assignIndividualStudent,
+      transferStudentTrack,
       assignClassFacilitator,
       toggleFacilitatorGlobalApproval,
       toggleSecurityActivation
