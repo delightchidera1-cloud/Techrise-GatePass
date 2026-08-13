@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Trash2, RotateCcw, AlertOctagon, User } from 'lucide-react';
+import { Trash2, RotateCcw, AlertOctagon, User, ShieldAlert } from 'lucide-react';
 import { useExeat } from '../context/ExeatContext';
 
 export default function RecentlyDeletedPanel() {
   const { deletedUsers, restoreUser, permanentlyDeleteUser } = useExeat();
   const [processingId, setProcessingId] = useState(null);
+  const [userToPurge, setUserToPurge] = useState(null);
 
   const calculateDaysLeft = (deletedAt) => {
     if (!deletedAt) return 0;
@@ -21,11 +22,17 @@ export default function RecentlyDeletedPanel() {
     setProcessingId(null);
   };
 
-  const handleDelete = async (userId) => {
-    if (window.confirm("Are you sure you want to PERMANENTLY delete this account? This action cannot be undone.")) {
-      setProcessingId(userId);
-      await permanentlyDeleteUser(userId);
+  const handleDelete = (userId) => {
+    const user = deletedUsers.find(u => u.id === userId);
+    setUserToPurge(user);
+  };
+
+  const confirmPurgeUser = async () => {
+    if (userToPurge) {
+      setProcessingId(userToPurge.id);
+      await permanentlyDeleteUser(userToPurge.id);
       setProcessingId(null);
+      setUserToPurge(null);
     }
   };
 
@@ -104,6 +111,41 @@ export default function RecentlyDeletedPanel() {
           </div>
         )}
       </div>
+
+      {/* Purge Confirmation Modal */}
+      {userToPurge && (
+        <div className="modal-backdrop">
+          <div className="modal" style={{ maxWidth: '400px' }}>
+            <div className="modal-header" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', borderBottom: '1px solid rgba(239, 68, 68, 0.2)' }}>
+              <h3 style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <ShieldAlert size={20} /> Permanently Delete User
+              </h3>
+              <button className="close-btn" onClick={() => setUserToPurge(null)}>&times;</button>
+            </div>
+            <div className="modal-content" style={{ padding: '1.5rem' }}>
+              <p style={{ marginBottom: '1rem' }}>
+                Are you sure you want to PERMANENTLY delete <strong>{userToPurge.name}</strong>?
+              </p>
+              <p style={{ marginBottom: '1.5rem', fontWeight: 'bold', color: '#ef4444' }}>
+                This action cannot be undone.
+              </p>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                <button className="btn btn-outline" onClick={() => setUserToPurge(null)}>
+                  Cancel
+                </button>
+                <button 
+                  className="btn btn-danger"
+                  disabled={processingId === userToPurge.id}
+                  onClick={confirmPurgeUser}
+                >
+                  {processingId === userToPurge.id ? 'Purging...' : 'Yes, Purge User'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
