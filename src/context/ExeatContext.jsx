@@ -117,7 +117,9 @@ export function ExeatProvider({ children }) {
       setAttendanceSession(relevantSession);
       
       const { data: pinsData } = await supabase.from('attendance_pins').select('*');
-      if (pinsData) setSessionPINs(pinsData);
+      if (pinsData && pinsData.length > 0) {
+        setSessionPINs(pinsData);
+      }
       
       const { data: recordsData } = await supabase.from('attendance_records').select('*').order('markedAt', { ascending: false });
       if (recordsData) setAttendanceRecords(recordsData);
@@ -268,7 +270,8 @@ export function ExeatProvider({ children }) {
         if (pinError) console.error("Error inserting pins:", pinError);
       }
       showToast('Attendance Session Opened', 'success');
-      await fetchAttendanceData();
+      // Intentionally NOT calling fetchAttendanceData() here to prevent read-replica
+      // from returning an empty array before the INSERT propagates, which would cause pins to flicker to '---'.
     }
   };
 
