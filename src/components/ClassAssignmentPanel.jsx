@@ -240,94 +240,89 @@ export default function ClassAssignmentPanel({ activeTab = 'all' }) {
           </h4>
           
           {allStudentsInTrack.length > 0 ? (
-            <div style={{ overflowX: 'auto', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                <thead style={{ backgroundColor: 'var(--bg-surface)' }}>
-                  <tr>
-                    <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>Student Details</th>
-                    <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>Course / Track</th>
-                    <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>Class Group</th>
-                    <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>Current Facilitator</th>
-                    <th style={{ padding: '1rem', textAlign: 'right', borderBottom: '1px solid var(--border-color)' }}>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {allStudentsInTrack.map(s => {
-                    const assignment = studentAssignments[s.id] || { classLetter: '', track: s.track || '' };
-                    
-                    // The actual facilitator name for this student based on their DB record
-                    let currentTutorName = 'N/A';
-                    if (s.assignedTutorId) {
-                      const t = tutors.find(t => t.id === s.assignedTutorId);
-                      if (t) currentTutorName = t.name;
-                    }
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '1rem' }}>
+              {allStudentsInTrack.map(s => {
+                const assignment = studentAssignments[s.id] || { classLetter: '', track: s.track || '' };
+                
+                // The actual facilitator name for this student based on their DB record
+                let currentTutorName = 'N/A';
+                if (s.assignedTutorId) {
+                  const t = tutors.find(t => t.id === s.assignedTutorId);
+                  if (t) currentTutorName = t.name;
+                }
 
-                    const isTrackDirty = assignment.track !== s.track;
-                    const isClassDirty = (assignment.classLetter !== (s.assignedClass ? s.assignedClass.match(/CLASS\s+([A-C])$/i)?.[1] || '' : ''));
-                    const isDirty = isTrackDirty || isClassDirty;
-                    
-                    // Prevent class assignment if track is changed (force them to save transfer first)
-                    const canAssignClass = !isTrackDirty;
+                const isTrackDirty = assignment.track !== s.track;
+                const isClassDirty = (assignment.classLetter !== (s.assignedClass ? s.assignedClass.match(/CLASS\s+([A-C])$/i)?.[1] || '' : ''));
+                const isDirty = isTrackDirty || isClassDirty;
+                
+                // Prevent class assignment if track is changed (force them to save transfer first)
+                const canAssignClass = !isTrackDirty;
 
-                    return (
-                      <tr key={s.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                        <td style={{ padding: '1rem' }}>
-                          <strong>{s.name}</strong>
-                          <br />
-                          <small className="text-muted">{s.studentId}</small>
-                        </td>
-                        <td style={{ padding: '1rem' }}>
-                          <select
-                            className="form-control"
-                            value={assignment.track}
-                            onChange={(e) => handleAssignmentChange(s.id, 'track', e.target.value)}
-                            style={{ minWidth: '140px', backgroundColor: 'var(--bg-primary)' }}
-                          >
-                            <option value="">-- No Track --</option>
-                            {tracks.map(t => <option key={t} value={t}>{t}</option>)}
-                          </select>
-                        </td>
-                        <td style={{ padding: '1rem' }}>
-                          <select
-                            className="form-control"
-                            value={assignment.classLetter}
-                            onChange={(e) => handleAssignmentChange(s.id, 'classLetter', e.target.value)}
-                            disabled={!canAssignClass}
-                            style={{ minWidth: '120px', backgroundColor: canAssignClass ? 'var(--bg-primary)' : 'var(--bg-surface)' }}
-                          >
-                            <option value="">-- None --</option>
-                            <option value="A">Class A</option>
-                            <option value="B">Class B</option>
-                            <option value="C">Class C</option>
-                          </select>
-                        </td>
-                        <td style={{ padding: '1rem', color: 'var(--text-muted)' }}>
-                          {currentTutorName}
-                        </td>
-                        <td style={{ padding: '1rem', textAlign: 'right' }}>
-                          <button 
-                            className={`btn btn-sm ${isTrackDirty ? 'btn-danger' : 'btn-primary'}`}
-                            disabled={savingId === s.id || processingDeleteId === s.id || (!assignment.classLetter && !isTrackDirty) || !isDirty}
-                            onClick={() => handleSaveStudent(s)}
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-                          >
-                            {savingId === s.id ? 'Saving...' : (isTrackDirty ? 'Transfer' : <><Save size={14} /> Save</>)}
-                          </button>
-                          <button 
-                            className="btn btn-sm btn-outline"
-                            disabled={processingDeleteId === s.id}
-                            onClick={() => handleDeleteUser(s)}
-                            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0.4rem', border: '1px solid #ef4444', color: '#ef4444', marginLeft: '4px' }}
-                            title="Delete Student"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                return (
+                  <div key={s.id} className="user-card" style={{ alignItems: 'flex-start', textAlign: 'left' }}>
+                    <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                      <div>
+                        <strong style={{ fontSize: '1.05rem' }}>{s.name}</strong><br />
+                        <small className="text-muted">{s.studentId}</small>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <small className="text-muted" style={{ display: 'block', fontSize: '0.75rem' }}>Facilitator</small>
+                        <span style={{ fontSize: '0.85rem', fontWeight: '500' }}>{currentTutorName}</span>
+                      </div>
+                    </div>
+
+                    <div style={{ width: '100%', display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '0.8rem', marginBottom: '0.3rem', color: 'var(--text-muted)' }}>Track</label>
+                        <select 
+                          className="form-control" 
+                          value={assignment.track} 
+                          onChange={(e) => handleAssignmentChange(s.id, 'track', e.target.value)} 
+                          style={{ width: '100%', padding: '0.4rem', fontSize: '0.9rem', backgroundColor: 'var(--bg-primary)' }}
+                        >
+                          <option value="">-- None --</option>
+                          {tracks.map(t => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '0.8rem', marginBottom: '0.3rem', color: 'var(--text-muted)' }}>Class</label>
+                        <select 
+                          className="form-control" 
+                          value={assignment.classLetter} 
+                          onChange={(e) => handleAssignmentChange(s.id, 'classLetter', e.target.value)} 
+                          disabled={!canAssignClass} 
+                          style={{ width: '100%', padding: '0.4rem', fontSize: '0.9rem', backgroundColor: canAssignClass ? 'var(--bg-primary)' : 'var(--bg-surface)' }}
+                        >
+                          <option value="">-- None --</option>
+                          <option value="A">Class A</option>
+                          <option value="B">Class B</option>
+                          <option value="C">Class C</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style={{ width: '100%', display: 'flex', gap: '0.5rem' }}>
+                      <button 
+                        className={`btn btn-sm ${isTrackDirty ? 'btn-danger' : 'btn-primary'}`}
+                        disabled={savingId === s.id || processingDeleteId === s.id || (!assignment.classLetter && !isTrackDirty) || !isDirty}
+                        onClick={() => handleSaveStudent(s)}
+                        style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', padding: '0.5rem' }}
+                      >
+                        {savingId === s.id ? 'Saving...' : (isTrackDirty ? 'Transfer' : <><Save size={16} /> Save</>)}
+                      </button>
+                      <button 
+                        className="btn btn-sm btn-outline"
+                        disabled={processingDeleteId === s.id}
+                        onClick={() => handleDeleteUser(s)}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.5rem 0.75rem', border: '1px solid #ef4444', color: '#ef4444' }}
+                        title="Delete Student"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="empty-state" style={{ padding: '2rem' }}>
