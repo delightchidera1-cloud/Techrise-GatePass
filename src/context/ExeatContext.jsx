@@ -320,46 +320,30 @@ export function ExeatProvider({ children }) {
       return false;
     }
 
-    const expiresAtStr = attendanceSession.expiresAt.replace(' ', 'T').endsWith('Z') || attendanceSession.expiresAt.replace(' ', 'T').includes('+') 
-      ? attendanceSession.expiresAt.replace(' ', 'T') 
-      : attendanceSession.expiresAt.replace(' ', 'T') + 'Z';
-    const expires = new Date(expiresAtStr);
-    
-    if (new Date() >= expires) {
-      showToast('Session time has elapsed.', 'error');
-      return false;
-    }
-
     const isClockedOut = requests.some(r => r.applicantId === currentUser?.studentId && r.status === 'ACTIVE_OUTSIDE');
     if (isClockedOut) {
       showToast('Cannot mark attendance while clocked out by security.', 'error');
       return false;
     }
 
-    const record = sessionPINs.find(p => p.studentId === currentUser?.studentId);
-    if (!record || record.pin !== pin) {
+    // Verify PIN directly against the DB to avoid Realtime sync race conditions
+    const { data: dbPin, error: pinError } = await supabase.from('attendance_pins')
+      .select('*')
+      .eq('studentId', currentUser.studentId)
+      .eq('pin', pin)
+      .single();
+
+    if (pinError || !dbPin) {
       showToast('Invalid PIN', 'error');
       return false;
     }
-    
-    const openedAtStr = attendanceSession.openedAt.replace(' ', 'T').endsWith('Z') || attendanceSession.openedAt.replace(' ', 'T').includes('+')
-      ? attendanceSession.openedAt.replace(' ', 'T')
-      : attendanceSession.openedAt.replace(' ', 'T') + 'Z';
-    const sessionStart = new Date(new Date(openedAtStr).getTime() - 300000); // 5 min buffer
 
-    const alreadyVerified = attendanceRecords.find(r => {
-      if (r.studentId !== currentUser.studentId) return false;
-      const recordTimeStr = r.markedAt.replace(' ', 'T').endsWith('Z') || r.markedAt.replace(' ', 'T').includes('+')
-        ? r.markedAt.replace(' ', 'T')
-        : r.markedAt.replace(' ', 'T') + 'Z';
-      return new Date(recordTimeStr) >= sessionStart;
-    });
-
-    if (alreadyVerified) {
-      return true; // Already verified
+    if (dbPin.used) {
+      showToast('PIN has already been used.', 'error');
+      return false;
     }
 
-    const { error: updateError } = await supabase.from('attendance_pins').update({ used: true }).eq('id', record.id);
+    const { error: updateError } = await supabase.from('attendance_pins').update({ used: true }).eq('id', dbPin.id);
     if (updateError) {
       console.error('Error updating pin:', updateError);
     }
