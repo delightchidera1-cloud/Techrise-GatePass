@@ -291,7 +291,7 @@ export function ExeatProvider({ children }) {
     const openedAtStr = attendanceSession.openedAt.replace(' ', 'T').endsWith('Z') || attendanceSession.openedAt.replace(' ', 'T').includes('+')
       ? attendanceSession.openedAt.replace(' ', 'T')
       : attendanceSession.openedAt.replace(' ', 'T') + 'Z';
-    const sessionStart = new Date(openedAtStr);
+    const sessionStart = new Date(new Date(openedAtStr).getTime() - 1000);
 
     participants.forEach(p => {
       const hasRecordThisSession = attendanceRecords.find(r => {

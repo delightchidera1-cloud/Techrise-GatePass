@@ -38,7 +38,7 @@ export default function FacilitatorAttendance() {
     const openedAtStr = attendanceSession.openedAt.replace(' ', 'T').endsWith('Z') || attendanceSession.openedAt.replace(' ', 'T').includes('+')
       ? attendanceSession.openedAt.replace(' ', 'T')
       : attendanceSession.openedAt.replace(' ', 'T') + 'Z';
-    const sessionStart = new Date(new Date(openedAtStr).getTime() - 300000); // 5 min buffer
+    const sessionStart = new Date(new Date(openedAtStr).getTime() - 1000); // 1 sec buffer
     
     return attendanceRecords.filter(r => {
       const recordTimeStr = r.markedAt.replace(' ', 'T').endsWith('Z') || r.markedAt.replace(' ', 'T').includes('+')
@@ -87,7 +87,7 @@ export default function FacilitatorAttendance() {
       const openedAtStr = attendanceSession.openedAt.replace(' ', 'T').endsWith('Z') || attendanceSession.openedAt.replace(' ', 'T').includes('+')
         ? attendanceSession.openedAt.replace(' ', 'T')
         : attendanceSession.openedAt.replace(' ', 'T') + 'Z';
-      const sessionStart = new Date(new Date(openedAtStr).getTime() - 300000); // 5 min buffer
+      const sessionStart = new Date(new Date(openedAtStr).getTime() - 1000); // 1 sec buffer
       
       relevantRecords = attendanceRecords.filter(r => {
         const recordTimeStr = r.markedAt.replace(' ', 'T').endsWith('Z') || r.markedAt.replace(' ', 'T').includes('+')
