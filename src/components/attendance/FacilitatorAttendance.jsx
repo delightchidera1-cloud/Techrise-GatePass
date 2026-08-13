@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useExeat } from '../../context/ExeatContext';
 import { Clock, Play, Square, CheckCircle, XCircle, MinusCircle, User, SlidersHorizontal, PlayCircle, ChevronRight, GraduationCap, Calendar, X } from 'lucide-react';
 import './Attendance.css';
@@ -18,6 +18,7 @@ export default function FacilitatorAttendance() {
 
   const [timeLeft, setTimeLeft] = useState('00:00');
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const isClosingRef = useRef(false);
 
   // Fallback polling mechanism: in case Supabase Realtime is disabled or delayed
   useEffect(() => {
@@ -50,6 +51,7 @@ export default function FacilitatorAttendance() {
   useEffect(() => {
     if (!attendanceSession || attendanceSession.status !== 'OPEN') {
       setTimeLeft('00:00');
+      isClosingRef.current = false;
       return;
     }
 
@@ -63,8 +65,11 @@ export default function FacilitatorAttendance() {
       const diff = expires - now;
 
       if (diff <= 0) {
-        setTimeLeft('00:00');
-        closeAttendanceSession();
+        clearInterval(interval);
+        if (!isClosingRef.current) {
+          isClosingRef.current = true;
+          closeAttendanceSession();
+        }
       } else {
         const m = Math.floor(diff / 60000);
         const s = Math.floor((diff % 60000) / 1000);

@@ -255,16 +255,28 @@ export function ExeatProvider({ children }) {
         used: false
       }));
       if(newPINs.length > 0) {
+        // Optimistic UI Update for instant PIN display
+        setSessionPINs(newPINs);
+        setAttendanceSession({
+          id: sessionId,
+          status: 'OPEN',
+          expiresAt: expiresAt,
+          openedAt: new Date().toISOString()
+        });
+        
         const { error: pinError } = await supabase.from('attendance_pins').insert(newPINs);
         if (pinError) console.error("Error inserting pins:", pinError);
       }
       showToast('Attendance Session Opened', 'success');
-      fetchAttendanceData();
+      await fetchAttendanceData();
     }
   };
 
   const closeAttendanceSession = async () => {
-    if (!attendanceSession) return;
+    if (!attendanceSession || attendanceSession.status !== 'OPEN') return;
+    
+    // Optimistic UI update to prevent double-firing and infinite loops
+    setAttendanceSession(prev => prev ? { ...prev, status: 'CLOSED' } : null);
     
     await supabase.from('attendance_sessions').update({ status: 'CLOSED' }).eq('id', attendanceSession.id);
     
