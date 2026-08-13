@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { supabase } from '../utils/supabase';
 
 const ExeatContext = createContext();
@@ -24,6 +24,12 @@ export function ExeatProvider({ children }) {
   const [activeModal, setActiveModal] = useState(null);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [toasts, setToasts] = useState([]);
+
+  // Use a ref to keep track of the latest currentUser for realtime subscription callbacks
+  const currentUserRef = useRef(currentUser);
+  useEffect(() => {
+    currentUserRef.current = currentUser;
+  }, [currentUser]);
 
   // Load Initial Data from Supabase
   useEffect(() => {
@@ -91,18 +97,19 @@ export function ExeatProvider({ children }) {
   }
 
   async function fetchAttendanceData() {
+    const user = currentUserRef.current;
     const { data: sessionData } = await supabase.from('attendance_sessions').select('*').order('openedAt', { ascending: false }).limit(50);
     
     let relevantSession = null;
     if (sessionData && sessionData.length > 0) {
-      if (currentUser?.role === 'participant') {
-        if (currentUser?.assignedTutorId) {
-          relevantSession = sessionData.find(s => s.id.includes(currentUser.assignedTutorId));
+      if (user?.role === 'participant') {
+        if (user?.assignedTutorId) {
+          relevantSession = sessionData.find(s => s.id.includes(user.assignedTutorId));
         }
-      } else if (currentUser?.role === 'superadmin') {
+      } else if (user?.role === 'superadmin') {
         relevantSession = sessionData[0];
-      } else if (currentUser?.id) {
-        relevantSession = sessionData.find(s => s.id.includes(currentUser.id));
+      } else if (user?.id) {
+        relevantSession = sessionData.find(s => s.id.includes(user.id));
       }
     }
 
