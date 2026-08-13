@@ -25,7 +25,7 @@ export default function FacilitatorAttendance() {
     const openedAtStr = attendanceSession.openedAt.endsWith('Z') || attendanceSession.openedAt.includes('+')
       ? attendanceSession.openedAt
       : attendanceSession.openedAt + 'Z';
-    const sessionStart = new Date(openedAtStr);
+    const sessionStart = new Date(new Date(openedAtStr).getTime() - 300000); // 5 min buffer
     
     return attendanceRecords.filter(r => {
       const recordTimeStr = r.markedAt.endsWith('Z') || r.markedAt.includes('+')
@@ -71,7 +71,7 @@ export default function FacilitatorAttendance() {
       const openedAtStr = attendanceSession.openedAt.endsWith('Z') || attendanceSession.openedAt.includes('+')
         ? attendanceSession.openedAt
         : attendanceSession.openedAt + 'Z';
-      const sessionStart = new Date(openedAtStr);
+      const sessionStart = new Date(new Date(openedAtStr).getTime() - 300000); // 5 min buffer
       
       relevantRecords = attendanceRecords.filter(r => {
         const recordTimeStr = r.markedAt.endsWith('Z') || r.markedAt.includes('+')

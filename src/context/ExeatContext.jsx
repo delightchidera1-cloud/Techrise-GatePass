@@ -333,8 +333,8 @@ export function ExeatProvider({ children }) {
     const openedAtStr = attendanceSession.openedAt.endsWith('Z') || attendanceSession.openedAt.includes('+')
       ? attendanceSession.openedAt
       : attendanceSession.openedAt + 'Z';
-    const sessionStart = new Date(openedAtStr);
-    
+    const sessionStart = new Date(new Date(openedAtStr).getTime() - 300000); // 5 min buffer
+
     const alreadyVerified = attendanceRecords.find(r => {
       if (r.studentId !== currentUser.studentId) return false;
       const recordTimeStr = r.markedAt.endsWith('Z') || r.markedAt.includes('+')
@@ -354,8 +354,7 @@ export function ExeatProvider({ children }) {
 
     const { error: insertError } = await supabase.from('attendance_records').insert([{
       studentId: currentUser.studentId,
-      status: 'PRESENT',
-      markedAt: new Date().toISOString()
+      status: 'PRESENT'
     }]);
 
     if (insertError) {

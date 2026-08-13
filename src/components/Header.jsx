@@ -48,7 +48,7 @@ export default function Header() {
                 </>
               ) : (
                 <>
-                  <h1>GatePass <span>Hub</span></h1>
+                  <h1>Admin's <span>Hub</span></h1>
                   <p>Digital Exeat & Permission Portal</p>
                 </>
               )}

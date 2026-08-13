@@ -13,7 +13,7 @@ export default function StudentAttendance() {
     const openedAtStr = attendanceSession.openedAt.endsWith('Z') || attendanceSession.openedAt.includes('+')
       ? attendanceSession.openedAt
       : attendanceSession.openedAt + 'Z';
-    const sessionStart = new Date(openedAtStr);
+    const sessionStart = new Date(new Date(openedAtStr).getTime() - 300000); // 5 min buffer
     
     return attendanceRecords.find(r => {
       if (r.studentId !== currentUser?.studentId) return false;
