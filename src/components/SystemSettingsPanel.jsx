@@ -37,7 +37,7 @@ export default function SystemSettingsPanel() {
           </h4>
           <p style={{ marginBottom: '1.5rem', color: 'var(--text-muted)' }}>
             Executing this action will <strong>permanently delete all student records, gatepass requests, and attendance history</strong> from the database. 
-            Facilitators, Admins, and Security accounts will be kept intact. This cannot be undone.
+            Facilitators, Admins, and Security accounts will remain intact. This action cannot be undone.
           </p>
           
           <button 
@@ -45,7 +45,7 @@ export default function SystemSettingsPanel() {
             onClick={() => setShowModal(true)}
             style={{ fontWeight: 'bold' }}
           >
-            <Trash2 size={18} style={{ marginRight: '8px' }} /> Initialize Factory Reset
+            <Trash2 size={18} style={{ marginRight: '8px',color: '' }} /> Initialize Factory Reset
           </button>
         </div>
       </div>

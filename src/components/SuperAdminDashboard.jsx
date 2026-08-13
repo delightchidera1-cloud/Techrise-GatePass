@@ -80,7 +80,7 @@ export default function SuperAdminDashboard() {
           onClick={() => handleTabClick('deleted')}
           style={{ borderLeft: '1px solid var(--border-color)', marginLeft: 'auto', paddingLeft: '1rem' }}
         >
-          <Trash2 size={18} color="#ef4444" /> <span style={{ color: '#ef4444' }}>Recently Deleted</span>
+          <Trash2 size={18} color="white" /> <span style={{ color: 'white' }}>Recently Deleted</span>
         </button>
         <button 
           className={`sa-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}

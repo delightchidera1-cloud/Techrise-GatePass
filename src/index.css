@@ -1366,9 +1366,9 @@ select.form-control option {
 
   /* Modals */
   .modal-card {
-    border-radius: 0;
-    max-height: 100vh;
-    height: 100vh;
+    margin: 1rem;
+    width: calc(100% - 2rem);
+    max-height: 95vh;
   }
   
   .user-card {
