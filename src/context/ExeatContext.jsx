@@ -273,17 +273,17 @@ export function ExeatProvider({ children }) {
     const recordsToInsert = [];
     
     // Only check records from this session
-    const openedAtStr = attendanceSession.openedAt.endsWith('Z') || attendanceSession.openedAt.includes('+')
-      ? attendanceSession.openedAt
-      : attendanceSession.openedAt + 'Z';
+    const openedAtStr = attendanceSession.openedAt.replace(' ', 'T').endsWith('Z') || attendanceSession.openedAt.replace(' ', 'T').includes('+')
+      ? attendanceSession.openedAt.replace(' ', 'T')
+      : attendanceSession.openedAt.replace(' ', 'T') + 'Z';
     const sessionStart = new Date(openedAtStr);
 
     participants.forEach(p => {
       const hasRecordThisSession = attendanceRecords.find(r => {
         if (r.studentId !== p.studentId) return false;
-        const recordTimeStr = r.markedAt.endsWith('Z') || r.markedAt.includes('+')
-          ? r.markedAt
-          : r.markedAt + 'Z';
+        const recordTimeStr = r.markedAt.replace(' ', 'T').endsWith('Z') || r.markedAt.replace(' ', 'T').includes('+')
+          ? r.markedAt.replace(' ', 'T')
+          : r.markedAt.replace(' ', 'T') + 'Z';
         return new Date(recordTimeStr) >= sessionStart;
       });
 
@@ -308,9 +308,9 @@ export function ExeatProvider({ children }) {
       return false;
     }
 
-    const expiresAtStr = attendanceSession.expiresAt.endsWith('Z') || attendanceSession.expiresAt.includes('+') 
-      ? attendanceSession.expiresAt 
-      : attendanceSession.expiresAt + 'Z';
+    const expiresAtStr = attendanceSession.expiresAt.replace(' ', 'T').endsWith('Z') || attendanceSession.expiresAt.replace(' ', 'T').includes('+') 
+      ? attendanceSession.expiresAt.replace(' ', 'T') 
+      : attendanceSession.expiresAt.replace(' ', 'T') + 'Z';
     const expires = new Date(expiresAtStr);
     
     if (new Date() >= expires) {
@@ -330,16 +330,16 @@ export function ExeatProvider({ children }) {
       return false;
     }
     
-    const openedAtStr = attendanceSession.openedAt.endsWith('Z') || attendanceSession.openedAt.includes('+')
-      ? attendanceSession.openedAt
-      : attendanceSession.openedAt + 'Z';
+    const openedAtStr = attendanceSession.openedAt.replace(' ', 'T').endsWith('Z') || attendanceSession.openedAt.replace(' ', 'T').includes('+')
+      ? attendanceSession.openedAt.replace(' ', 'T')
+      : attendanceSession.openedAt.replace(' ', 'T') + 'Z';
     const sessionStart = new Date(new Date(openedAtStr).getTime() - 300000); // 5 min buffer
 
     const alreadyVerified = attendanceRecords.find(r => {
       if (r.studentId !== currentUser.studentId) return false;
-      const recordTimeStr = r.markedAt.endsWith('Z') || r.markedAt.includes('+')
-        ? r.markedAt
-        : r.markedAt + 'Z';
+      const recordTimeStr = r.markedAt.replace(' ', 'T').endsWith('Z') || r.markedAt.replace(' ', 'T').includes('+')
+        ? r.markedAt.replace(' ', 'T')
+        : r.markedAt.replace(' ', 'T') + 'Z';
       return new Date(recordTimeStr) >= sessionStart;
     });
 
@@ -362,6 +362,9 @@ export function ExeatProvider({ children }) {
       showToast('Failed to record attendance', 'error');
       return false;
     }
+    
+    // Force immediate local UI refresh
+    await fetchAttendanceData();
     
     showToast('Attendance Recorded', 'success');
     return true;

@@ -10,16 +10,16 @@ export default function StudentAttendance() {
 
   const record = (() => {
     if (!attendanceSession?.openedAt) return null;
-    const openedAtStr = attendanceSession.openedAt.endsWith('Z') || attendanceSession.openedAt.includes('+')
-      ? attendanceSession.openedAt
-      : attendanceSession.openedAt + 'Z';
+    const openedAtStr = attendanceSession.openedAt.replace(' ', 'T').endsWith('Z') || attendanceSession.openedAt.replace(' ', 'T').includes('+')
+      ? attendanceSession.openedAt.replace(' ', 'T')
+      : attendanceSession.openedAt.replace(' ', 'T') + 'Z';
     const sessionStart = new Date(new Date(openedAtStr).getTime() - 300000); // 5 min buffer
     
     return attendanceRecords.find(r => {
       if (r.studentId !== currentUser?.studentId) return false;
-      const recordTimeStr = r.markedAt.endsWith('Z') || r.markedAt.includes('+')
-        ? r.markedAt
-        : r.markedAt + 'Z';
+      const recordTimeStr = r.markedAt.replace(' ', 'T').endsWith('Z') || r.markedAt.replace(' ', 'T').includes('+')
+        ? r.markedAt.replace(' ', 'T')
+        : r.markedAt.replace(' ', 'T') + 'Z';
       return new Date(recordTimeStr) >= sessionStart;
     });
   })();
@@ -33,9 +33,9 @@ export default function StudentAttendance() {
     }
 
     const checkLiveStatus = () => {
-      const expiresAtStr = attendanceSession.expiresAt.endsWith('Z') || attendanceSession.expiresAt.includes('+') 
-        ? attendanceSession.expiresAt 
-        : attendanceSession.expiresAt + 'Z';
+      const expiresAtStr = attendanceSession.expiresAt.replace(' ', 'T').endsWith('Z') || attendanceSession.expiresAt.replace(' ', 'T').includes('+') 
+        ? attendanceSession.expiresAt.replace(' ', 'T') 
+        : attendanceSession.expiresAt.replace(' ', 'T') + 'Z';
       const expires = new Date(expiresAtStr);
       setIsLive(new Date() < expires);
     };
