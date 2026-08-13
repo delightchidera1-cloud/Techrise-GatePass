@@ -62,10 +62,10 @@ export default function StudentAttendance() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const fullPin = pin.join('');
     if (fullPin.length === 3) {
-      const success = verifyPIN(fullPin);
+      const success = await verifyPIN(fullPin);
       if (success) {
         setPin(['', '', '']);
       }

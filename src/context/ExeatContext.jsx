@@ -340,12 +340,22 @@ export function ExeatProvider({ children }) {
       return true; // Already verified
     }
 
-    await supabase.from('attendance_pins').update({ used: true }).eq('id', record.id);
-    await supabase.from('attendance_records').insert([{
+    const { error: updateError } = await supabase.from('attendance_pins').update({ used: true }).eq('id', record.id);
+    if (updateError) {
+      console.error('Error updating pin:', updateError);
+    }
+
+    const { error: insertError } = await supabase.from('attendance_records').insert([{
       studentId: currentUser.studentId,
       status: 'PRESENT',
       markedAt: new Date().toISOString()
     }]);
+
+    if (insertError) {
+      console.error('Error inserting attendance:', insertError);
+      showToast('Failed to record attendance', 'error');
+      return false;
+    }
     
     showToast('Attendance Recorded', 'success');
     return true;
