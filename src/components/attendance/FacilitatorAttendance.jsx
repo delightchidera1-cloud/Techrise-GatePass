@@ -6,17 +6,29 @@ import './Attendance.css';
 export default function FacilitatorAttendance() {
   const {
     users,
+    currentUser,
     attendanceSession,
     sessionPINs,
     attendanceRecords,
     studentPerformances,
     openAttendanceSession,
     closeAttendanceSession,
-    currentUser
+    refreshAttendanceData
   } = useExeat();
 
   const [timeLeft, setTimeLeft] = useState('00:00');
   const [selectedStudent, setSelectedStudent] = useState(null);
+
+  // Fallback polling mechanism: in case Supabase Realtime is disabled or delayed
+  useEffect(() => {
+    if (attendanceSession?.status !== 'OPEN' || !refreshAttendanceData) return;
+    
+    const pollInterval = setInterval(() => {
+      refreshAttendanceData();
+    }, 5000);
+    
+    return () => clearInterval(pollInterval);
+  }, [attendanceSession?.status, refreshAttendanceData]);
 
   const participants = users.filter(u => u.role === 'participant' && u.assignedTutorId === currentUser?.id);
   const enrolledCount = participants.length;

@@ -352,10 +352,10 @@ export function ExeatProvider({ children }) {
       console.error('Error updating pin:', updateError);
     }
 
-    const { error: insertError } = await supabase.from('attendance_records').insert([{
+    const { data: newRecordData, error: insertError } = await supabase.from('attendance_records').insert([{
       studentId: currentUser.studentId,
       status: 'PRESENT'
-    }]);
+    }]).select().single();
 
     if (insertError) {
       console.error('Error inserting attendance:', insertError);
@@ -363,8 +363,10 @@ export function ExeatProvider({ children }) {
       return false;
     }
     
-    // Force immediate local UI refresh
-    await fetchAttendanceData();
+    // Manually push to state to guarantee instant UI update (avoids DB read-replica delays)
+    if (newRecordData) {
+      setAttendanceRecords(prev => [...prev, newRecordData]);
+    }
     
     showToast('Attendance Recorded', 'success');
     return true;
@@ -592,6 +594,7 @@ export function ExeatProvider({ children }) {
       sessionPINs,
       attendanceRecords,
       studentPerformances,
+      refreshAttendanceData: fetchAttendanceData,
       openAttendanceSession,
       closeAttendanceSession,
       verifyPIN,
