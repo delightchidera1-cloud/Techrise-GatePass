@@ -114,15 +114,15 @@ export default function RecentlyDeletedPanel() {
 
       {/* Purge Confirmation Modal */}
       {userToPurge && (
-        <div className="modal-backdrop">
-          <div className="modal" style={{ maxWidth: '400px' }}>
+        <div className="modal-overlay">
+          <div className="modal-card" style={{ maxWidth: '400px' }}>
             <div className="modal-header" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', borderBottom: '1px solid rgba(239, 68, 68, 0.2)' }}>
-              <h3 style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <h3 style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
                 <ShieldAlert size={20} /> Permanently Delete User
               </h3>
-              <button className="close-btn" onClick={() => setUserToPurge(null)}>&times;</button>
+              <button className="modal-close" onClick={() => setUserToPurge(null)}>&times;</button>
             </div>
-            <div className="modal-content" style={{ padding: '1.5rem' }}>
+            <div className="modal-body">
               <p style={{ marginBottom: '1rem' }}>
                 Are you sure you want to PERMANENTLY delete <strong>{userToPurge.name}</strong>?
               </p>

@@ -52,15 +52,15 @@ export default function SystemSettingsPanel() {
 
       {/* Confirmation Modal */}
       {showModal && (
-        <div className="modal-backdrop">
-          <div className="modal" style={{ maxWidth: '500px' }}>
+        <div className="modal-overlay">
+          <div className="modal-card" style={{ maxWidth: '500px' }}>
             <div className="modal-header" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', borderBottom: '1px solid rgba(239, 68, 68, 0.2)' }}>
-              <h3 style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <h3 style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
                 <ShieldAlert size={20} /> Extreme Caution Required
               </h3>
-              <button className="close-btn" onClick={() => setShowModal(false)}>&times;</button>
+              <button className="modal-close" onClick={() => setShowModal(false)}>&times;</button>
             </div>
-            <div className="modal-content" style={{ padding: '1.5rem' }}>
+            <div className="modal-body">
               <p style={{ marginBottom: '1rem' }}>
                 You are about to wipe the database and start a new cohort. This will delete all <strong>Students, Gatepass Requests, and Attendance Records</strong> permanently.
               </p>
