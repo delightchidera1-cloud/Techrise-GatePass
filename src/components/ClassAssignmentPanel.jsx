@@ -347,9 +347,9 @@ export default function ClassAssignmentPanel({ activeTab = 'all' }) {
           Enable global approval below to allow a facilitator to approve passes for any student in the camp.
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1rem' }}>
           {tutors.map(tutor => (
-            <div key={tutor.id} style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div key={tutor.id} className="user-card">
               <div>
                 <strong>{tutor.name}</strong><br />
                 <small className="text-muted">{tutor.studentId || 'Admin'}</small>
@@ -389,9 +389,9 @@ export default function ClassAssignmentPanel({ activeTab = 'all' }) {
           Activate or revoke access for security officers. New security accounts must be activated before they can clock in/out students.
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1rem' }}>
           {securityOfficers.map(sec => (
-            <div key={sec.id} style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div key={sec.id} className="user-card">
               <div>
                 <strong>{sec.name}</strong><br />
                 <small className="text-muted">{sec.email || 'No email'}</small>
