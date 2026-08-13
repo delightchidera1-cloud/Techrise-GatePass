@@ -18,7 +18,7 @@ export default function FacilitatorAttendance() {
 
   const [timeLeft, setTimeLeft] = useState('00:00');
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const isClosingRef = useRef(false);
+  const lastClosedSessionId = useRef(null); // Strictly prevents multiple closures of the same session
 
   // Fallback polling mechanism: in case Supabase Realtime is disabled or delayed
   useEffect(() => {
@@ -51,7 +51,6 @@ export default function FacilitatorAttendance() {
   useEffect(() => {
     if (!attendanceSession || attendanceSession.status !== 'OPEN') {
       setTimeLeft('00:00');
-      isClosingRef.current = false;
       return;
     }
 
@@ -66,8 +65,8 @@ export default function FacilitatorAttendance() {
 
       if (diff <= 0) {
         clearInterval(interval);
-        if (!isClosingRef.current) {
-          isClosingRef.current = true;
+        if (lastClosedSessionId.current !== attendanceSession.id) {
+          lastClosedSessionId.current = attendanceSession.id;
           closeAttendanceSession();
         }
       } else {
