@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Trash2, RotateCcw, AlertOctagon, User, ShieldAlert } from 'lucide-react';
 import { useExeat } from '../context/ExeatContext';
 
@@ -113,8 +114,8 @@ export default function RecentlyDeletedPanel() {
       </div>
 
       {/* Purge Confirmation Modal */}
-      {userToPurge && (
-        <div className="modal-overlay">
+      {userToPurge && createPortal(
+        <div className="modal-overlay" style={{ zIndex: 9999 }}>
           <div className="modal-card" style={{ maxWidth: '400px' }}>
             <div className="modal-header" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', borderBottom: '1px solid rgba(239, 68, 68, 0.2)' }}>
               <h3 style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
@@ -144,7 +145,8 @@ export default function RecentlyDeletedPanel() {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

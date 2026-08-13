@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { AlertTriangle, Trash2, ShieldAlert } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { AlertTriangle, Trash2, ShieldAlert, AlertOctagon, X } from 'lucide-react';
 import { useExeat } from '../context/ExeatContext';
 
 export default function SystemSettingsPanel() {
@@ -51,50 +52,43 @@ export default function SystemSettingsPanel() {
       </div>
 
       {/* Confirmation Modal */}
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-card" style={{ maxWidth: '500px' }}>
-            <div className="modal-header" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', borderBottom: '1px solid rgba(239, 68, 68, 0.2)' }}>
-              <h3 style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-                <ShieldAlert size={20} /> Extreme Caution Required
-              </h3>
-              <button className="modal-close" onClick={() => setShowModal(false)}>&times;</button>
+      {showModal && createPortal(
+        <div className="modal-overlay" style={{ zIndex: 9999 }}>
+          <div className="modal-card" style={{ maxWidth: '400px' }}>
+            <div className="modal-header">
+              <h3 style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><AlertOctagon size={20} /> Factory Reset</h3>
+              <button className="modal-close" onClick={() => setShowModal(false)}><X size={18} /></button>
             </div>
             <div className="modal-body">
-              <p style={{ marginBottom: '1rem' }}>
-                You are about to wipe the database and start a new cohort. This will delete all <strong>Students, Gatepass Requests, and Attendance Records</strong> permanently.
+              <p>Are you sure you want to initialize a Factory Reset for the next cohort?</p>
+              <p className="text-muted" style={{ marginBottom: '1rem' }}>
+                This will delete all Student accounts and their Exeat histories. Facilitators and Security accounts will remain.
               </p>
-              <p style={{ marginBottom: '1.5rem', fontWeight: 'bold', color: '#ef4444' }}>
-                This action is irreversible.
-              </p>
-
               <div className="form-group">
-                <label>Please type <strong>START NEW COHORT</strong> to confirm.</label>
+                <label>Type <strong>START NEW COHORT</strong> to confirm:</label>
                 <input 
                   type="text" 
                   className="form-control" 
                   value={confirmText}
                   onChange={(e) => setConfirmText(e.target.value)}
                   placeholder="START NEW COHORT"
-                  style={{ marginTop: '0.5rem', border: '1px solid #ef4444' }}
+                  style={{ marginTop: '0.5rem' }}
                 />
               </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem' }}>
-                <button className="btn btn-outline" onClick={() => setShowModal(false)}>
-                  Cancel
-                </button>
-                <button 
-                  className="btn btn-danger"
-                  disabled={confirmText !== 'START NEW COHORT' || isWiping}
-                  onClick={handleWipeData}
-                >
-                  {isWiping ? 'Wiping Database...' : 'Permanently Delete Data'}
-                </button>
-              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
+              <button className="btn btn-outline" onClick={() => setShowModal(false)}>Cancel</button>
+              <button 
+                className="btn btn-danger" 
+                disabled={confirmText !== 'START NEW COHORT' || isWiping}
+                onClick={handleWipeData}
+              >
+                {isWiping ? 'Wiping...' : 'Yes, Initialize'}
+              </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
