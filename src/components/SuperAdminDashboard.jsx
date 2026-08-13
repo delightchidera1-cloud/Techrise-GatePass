@@ -3,6 +3,7 @@ import { Shield, BookOpen, Settings, Users, Key, Menu, Trash2 } from 'lucide-rea
 import AdminPortal from './AdminPortal';
 import ClassAssignmentPanel from './ClassAssignmentPanel';
 import RecentlyDeletedPanel from './RecentlyDeletedPanel';
+import SystemSettingsPanel from './SystemSettingsPanel';
 import { useExeat } from '../context/ExeatContext';
 
 export default function SuperAdminDashboard() {
@@ -22,6 +23,7 @@ export default function SuperAdminDashboard() {
       case 'facilitators': return 'Facilitator Rights';
       case 'security': return 'Security Accounts';
       case 'deleted': return 'Recently Deleted';
+      case 'settings': return 'System Settings';
       default: return 'Dashboard';
     }
   };
@@ -80,6 +82,12 @@ export default function SuperAdminDashboard() {
         >
           <Trash2 size={18} color="#ef4444" /> <span style={{ color: '#ef4444' }}>Recently Deleted</span>
         </button>
+        <button 
+          className={`sa-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
+          onClick={() => handleTabClick('settings')}
+        >
+          <Settings size={18} /> Settings
+        </button>
       </div>
 
       <div className="sa-tab-content">
@@ -88,6 +96,7 @@ export default function SuperAdminDashboard() {
         {activeTab === 'facilitators' && <ClassAssignmentPanel activeTab="facilitators" />}
         {activeTab === 'security' && <ClassAssignmentPanel activeTab="security" />}
         {activeTab === 'deleted' && <RecentlyDeletedPanel />}
+        {activeTab === 'settings' && <SystemSettingsPanel />}
       </div>
     </div>
   );

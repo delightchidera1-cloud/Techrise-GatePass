@@ -17,6 +17,34 @@ CREATE TABLE IF NOT EXISTS users (
   "deletedAt" TIMESTAMP WITH TIME ZONE DEFAULT NULL
 );
 
+-- ==========================================
+-- COHORT RESET MECHANISM
+-- ==========================================
+-- This function allows the Super Admin to wipe out all cohort-related data
+-- (requests, attendance, and student users) to start a new cohort, while keeping
+-- Admins, Facilitators, and Security Officers intact.
+
+CREATE OR REPLACE FUNCTION reset_cohort_data()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  -- 1. Delete all gatepass requests
+  DELETE FROM gatepass_requests;
+  
+  -- 2. Delete all attendance records and sessions
+  DELETE FROM attendance_records;
+  DELETE FROM attendance_sessions;
+  
+  -- 3. Delete all student performance data
+  DELETE FROM student_performance;
+  
+  -- 4. Delete all students (participants)
+  DELETE FROM users WHERE role = 'participant';
+END;
+$$;
+
 -- Note: If you already have the users table created, run the following to add the missing columns:
 -- ALTER TABLE users ADD COLUMN "canApproveAll" BOOLEAN DEFAULT FALSE;
 -- ALTER TABLE users ADD COLUMN "isActivated" BOOLEAN DEFAULT FALSE;

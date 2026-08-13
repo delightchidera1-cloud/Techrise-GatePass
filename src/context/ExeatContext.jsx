@@ -493,6 +493,22 @@ export function ExeatProvider({ children }) {
     }
   };
 
+  const startNewCohort = async () => {
+    const { error } = await supabase.rpc('reset_cohort_data');
+    if (error) {
+      showToast(`Failed to reset cohort data: ${error.message}`, 'error');
+      return false;
+    } else {
+      showToast('Successfully wiped cohort data. Starting fresh!', 'success');
+      // Refresh local state to reflect empty database
+      fetchUsers();
+      fetchRequests();
+      fetchAttendanceData();
+      fetchStudentPerformances();
+      return true;
+    }
+  };
+
   const exportToCSV = () => {
     const headers = ['Pass ID', 'Applicant Name', 'Participant ID', 'Track', 'Reason', 'Destination', 'Exit Time', 'Expected Return', 'Status'];
     const rows = requests.map(r => [
@@ -568,7 +584,8 @@ export function ExeatProvider({ children }) {
       toggleSecurityActivation,
       softDeleteUser,
       restoreUser,
-      permanentlyDeleteUser
+      permanentlyDeleteUser,
+      startNewCohort
     }}>
       {children}
     </ExeatContext.Provider>
