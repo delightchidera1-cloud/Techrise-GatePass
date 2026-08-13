@@ -119,7 +119,7 @@ export function ExeatProvider({ children }) {
       const { data: pinsData } = await supabase.from('attendance_pins').select('*');
       if (pinsData) setSessionPINs(pinsData);
       
-      const { data: recordsData } = await supabase.from('attendance_records').select('*');
+      const { data: recordsData } = await supabase.from('attendance_records').select('*').order('markedAt', { ascending: false });
       if (recordsData) setAttendanceRecords(recordsData);
     } else {
       setAttendanceSession(null);
@@ -365,7 +365,7 @@ export function ExeatProvider({ children }) {
     
     // Manually push to state to guarantee instant UI update (avoids DB read-replica delays)
     if (newRecordData) {
-      setAttendanceRecords(prev => [...prev, newRecordData]);
+      setAttendanceRecords(prev => [newRecordData, ...prev]);
     }
     
     showToast('Attendance Recorded', 'success');
