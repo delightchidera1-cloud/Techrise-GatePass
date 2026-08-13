@@ -32,17 +32,10 @@ export default function StudentAttendance() {
       return;
     }
 
-    const checkLiveStatus = () => {
-      const expiresAtStr = attendanceSession.expiresAt.replace(' ', 'T').endsWith('Z') || attendanceSession.expiresAt.replace(' ', 'T').includes('+') 
-        ? attendanceSession.expiresAt.replace(' ', 'T') 
-        : attendanceSession.expiresAt.replace(' ', 'T') + 'Z';
-      const expires = new Date(expiresAtStr);
-      setIsLive(new Date() < expires);
-    };
-
-    checkLiveStatus();
-    const interval = setInterval(checkLiveStatus, 1000);
-    return () => clearInterval(interval);
+    // A session is strictly live if its status is OPEN.
+    // The Facilitator's device handles the countdown and closes it,
+    // which prevents the student's portal from accidentally closing early due to client clock drift.
+    setIsLive(true);
   }, [attendanceSession]);
 
   const handleChange = (index, value) => {
