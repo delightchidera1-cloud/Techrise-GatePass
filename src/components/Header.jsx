@@ -33,7 +33,9 @@ export default function Header() {
         <div className="container header-container">
           <div className="brand">
             <div className="brand-icon">
-              {currentLoginType === 'Attendance' ? <ClipboardCheck size={24} /> : <Shield size={24} />}
+              {currentLoginType === 'Attendance' ? <ClipboardCheck size={24} /> :
+               activeRole !== 'security' ? <img src="/logo.png" alt="TechRise" style={{ width: 24, height: 24, objectFit: 'contain' }} /> :
+               <Shield size={24} />}
             </div>
             <div className="brand-text">
               {currentLoginType === 'Attendance' ? (
