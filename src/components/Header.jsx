@@ -48,6 +48,11 @@ export default function Header() {
                   <h1><span>TECHRISE</span>-GatePass</h1>
                   <p>Digital Exeat & Permission Portal</p>
                 </>
+              ) : activeRole === 'participant' ? (
+                <>
+                  <h1>Student's <span>Hub</span></h1>
+                  <p>Digital Exeat & Permission Portal</p>
+                </>
               ) : (
                 <>
                   <h1>Admin's <span>Hub</span></h1>
