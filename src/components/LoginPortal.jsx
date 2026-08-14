@@ -118,8 +118,11 @@ export default function LoginPortal({ onSwitchMode }) {
           {/* <div className="login-brand-icon">
             <Shield size={32} />
           </div> */}
-          <h2>ABIA <span>TECHRISE</span></h2>
-          <p>Digital Exeat Permission/Gate Control & Atendance System</p>
+          <h2 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <img src="/logo.png" alt="TechRise Logo" style={{ height: '1em', width: 'auto' }} />
+            ABIA <span>TECHRISE</span>
+          </h2>
+          <p>Digital Exeat Permission/Gate Control & Attendance System</p>
         </div>
 
         {/* Role Tabs */}
