@@ -9,34 +9,30 @@ export default function StudentAttendance() {
   const inputRefs = [useRef(null), useRef(null), useRef(null)];
 
   const record = (() => {
-    if (!attendanceSession?.openedAt) return null;
-    const openedAtStr = attendanceSession.openedAt.replace(' ', 'T').endsWith('Z') || attendanceSession.openedAt.replace(' ', 'T').includes('+')
-      ? attendanceSession.openedAt.replace(' ', 'T')
-      : attendanceSession.openedAt.replace(' ', 'T') + 'Z';
-    const sessionStart = new Date(new Date(openedAtStr).getTime() - 1000); // 1 sec buffer
-    
-    return attendanceRecords.find(r => {
-      if (r.studentId !== currentUser?.studentId) return false;
-      const recordTimeStr = r.markedAt.replace(' ', 'T').endsWith('Z') || r.markedAt.replace(' ', 'T').includes('+')
-        ? r.markedAt.replace(' ', 'T')
-        : r.markedAt.replace(' ', 'T') + 'Z';
-      return new Date(recordTimeStr) >= sessionStart;
-    });
+    const todayStr = new Date().toISOString().split('T')[0];
+    return attendanceRecords.find(r => 
+      r.studentId === currentUser?.studentId && 
+      r.status === 'PRESENT' &&
+      r.markedAt.split('T')[0] === todayStr
+    );
   })();
 
   const [isLive, setIsLive] = useState(false);
 
   React.useEffect(() => {
+    // If they already have a PRESENT record today, they shouldn't see the live PIN input again.
+    if (record && record.status === 'PRESENT') {
+      setIsLive(false);
+      return;
+    }
+
     if (!attendanceSession || attendanceSession.status !== 'OPEN') {
       setIsLive(false);
       return;
     }
 
-    // A session is strictly live if its status is OPEN.
-    // The Facilitator's device handles the countdown and closes it,
-    // which prevents the student's portal from accidentally closing early due to client clock drift.
     setIsLive(true);
-  }, [attendanceSession]);
+  }, [attendanceSession, record]);
 
   const handleChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;

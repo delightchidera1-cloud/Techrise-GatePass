@@ -245,13 +245,19 @@ export function ExeatProvider({ children }) {
     if (!sessionError) {
       const participants = users.filter(u => u.role === 'participant' && u.assignedTutorId === currentUser.id && u.studentId);
       
+      const todayStr = new Date().toISOString().split('T')[0];
+      const eligibleParticipants = participants.filter(p => {
+        const alreadyPresent = attendanceRecords.some(r => r.studentId === p.studentId && r.status === 'PRESENT' && r.markedAt.split('T')[0] === todayStr);
+        return !alreadyPresent;
+      });
+
       // Delete old pins to prevent finding old pins
-      const participantIds = participants.map(p => p.studentId);
+      const participantIds = eligibleParticipants.map(p => p.studentId);
       if (participantIds.length > 0) {
         await supabase.from('attendance_pins').delete().in('studentId', participantIds);
       }
       
-      const newPINs = participants.map(p => ({
+      const newPINs = eligibleParticipants.map(p => ({
         studentId: p.studentId,
         pin: Math.floor(100 + Math.random() * 900).toString(),
         used: false
@@ -287,22 +293,15 @@ export function ExeatProvider({ children }) {
     const participants = users.filter(u => u.role === 'participant' && u.assignedTutorId === currentUser?.id);
     const recordsToInsert = [];
     
-    // Only check records from this session
-    const openedAtStr = attendanceSession.openedAt.replace(' ', 'T').endsWith('Z') || attendanceSession.openedAt.replace(' ', 'T').includes('+')
-      ? attendanceSession.openedAt.replace(' ', 'T')
-      : attendanceSession.openedAt.replace(' ', 'T') + 'Z';
-    const sessionStart = new Date(new Date(openedAtStr).getTime() - 1000);
+    const todayStr = new Date().toISOString().split('T')[0];
 
     participants.forEach(p => {
-      const hasRecordThisSession = attendanceRecords.find(r => {
+      const hasAnyRecordToday = attendanceRecords.some(r => {
         if (r.studentId !== p.studentId) return false;
-        const recordTimeStr = r.markedAt.replace(' ', 'T').endsWith('Z') || r.markedAt.replace(' ', 'T').includes('+')
-          ? r.markedAt.replace(' ', 'T')
-          : r.markedAt.replace(' ', 'T') + 'Z';
-        return new Date(recordTimeStr) >= sessionStart;
+        return r.markedAt.split('T')[0] === todayStr;
       });
 
-      if (!hasRecordThisSession) {
+      if (!hasAnyRecordToday) {
         recordsToInsert.push({
           studentId: p.studentId,
           status: 'ABSENT',
@@ -327,6 +326,18 @@ export function ExeatProvider({ children }) {
     if (isClockedOut) {
       showToast('Cannot mark attendance while clocked out by security.', 'error');
       return false;
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const existingAbsent = attendanceRecords.find(r => 
+      r.studentId === currentUser.studentId && 
+      r.status === 'ABSENT' && 
+      r.markedAt.split('T')[0] === todayStr
+    );
+
+    if (existingAbsent) {
+      await supabase.from('attendance_records').delete().eq('id', existingAbsent.id);
+      setAttendanceRecords(prev => prev.filter(r => r.id !== existingAbsent.id));
     }
 
     // Verify PIN directly against the DB to avoid Realtime sync race conditions
