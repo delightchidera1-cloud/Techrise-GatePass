@@ -113,8 +113,8 @@ export default function FacilitatorAttendance() {
     <div className="attendance-layout">
       <div className="attendance-sidebar">
         <div className="sidebar-header">
-          <h2>CS-101 Attendance</h2>
-          <p>Intro to Computer Science</p>
+          <h2>{participants.length > 0 && participants[0].assignedClass ? participants[0].assignedClass : 'Class Attendance'}</h2>
+          <p>Facilitator Dashboard</p>
         </div>
 
         <div className="session-title">
